@@ -1,0 +1,9 @@
+{
+  "source_directory": "F:\\Users\\Administrator\\Documents\\dlss5-multistage-dev\\fix-20261004\\renodx\\external\\Detours",
+  "library_sha256": "2ec3fce59879f59c4eb247494dc935c2b309ce3c9399b9614e050ff10bb0329a",
+  "files": {
+    "detours.cpp": "cb2f7c76a916c3c6aa25f72967806379e19d5024b7f60c54c7a17aac877b2d01",
+    "detours.h": "7b4d7928b82dfbcf7559142b2dedebf0ea34063d7f3d7e1d996befe6f19b1f71",
+    "LICENSE.md": "f854ae8aabc0404652b48a2b3bf7f21ec174c69d73f5596934c20884eb0639ef"
+  }
+}

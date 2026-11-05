@@ -1,2 +1,0 @@
-self-test: 16 embedded files, 0 mismatches
-exit=0

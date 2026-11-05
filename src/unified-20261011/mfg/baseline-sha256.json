@@ -1,0 +1,1574 @@
+[
+  {
+    "Path": "LICENSE",
+    "SHA256": "8B77740C6C91157C6946D9AD092FC5D6CE86D09C653ABF110BB6BE08072002FE"
+  },
+  {
+    "Path": "addon\\addon.cpp",
+    "SHA256": "D785F732110E01701F8D4BBB880EFB9242BF6B2891CC8157B9F501130E4B3113"
+  },
+  {
+    "Path": "addon\\architecture.hpp",
+    "SHA256": "D3D252C91E92593E89F209A61AE361481A69BFC37E8F16BAA8F340A347BF1188"
+  },
+  {
+    "Path": "addon\\blackwell_temporal.hpp",
+    "SHA256": "B704D1EF2FF0BF896882D00D98C448A7EEA8D16592E7FE1C51FD87F98443A2BC"
+  },
+  {
+    "Path": "addon\\capability_policy.hpp",
+    "SHA256": "17CCD97CDF38EC7519CB33A5205D6540795373799CE346A09228695C66A8692A"
+  },
+  {
+    "Path": "addon\\count_observer.hpp",
+    "SHA256": "0F702A0ACD4EF9BF2A3C5ECF1C33FC34DB272F9C9EC90C7193DD57ACA2825494"
+  },
+  {
+    "Path": "addon\\diagnostic_bridge.hpp",
+    "SHA256": "62A33CFF9A60379FDE046D4FE2EB09D9367A7468CF77964D7FF3D014CDDA704D"
+  },
+  {
+    "Path": "addon\\early_load.hpp",
+    "SHA256": "6D980A488A9802C452A00A2BB7DB816C26221D4C80301D4B5AEBE830F4E2819F"
+  },
+  {
+    "Path": "addon\\endpoint_backend.hpp",
+    "SHA256": "5F873954C8506898E469DAEBA7628296102F260373261F0D439BE3DC1AC6E4EF"
+  },
+  {
+    "Path": "addon\\fatbin.hpp",
+    "SHA256": "0BD9D6AA610F2DE668B55EDD269416CDB4A55C96ADFF5020F4EB0CD607B0C09B"
+  },
+  {
+    "Path": "addon\\feature_capabilities.hpp",
+    "SHA256": "1656DDCA61D24CE74E2E92C6561703638A5595973431730392970DF36FDA7055"
+  },
+  {
+    "Path": "addon\\fg_preset.hpp",
+    "SHA256": "F55CC32A1456558566912961802786D1B7A78D8D6CDF6AD488101BFDC3EC56AB"
+  },
+  {
+    "Path": "addon\\framecount.hpp",
+    "SHA256": "FB07D1282ED695C4EC63FA798406C7A67C4954FBE7FC199EED5C5E4A3B24FEEC"
+  },
+  {
+    "Path": "addon\\imgui_compat.hpp",
+    "SHA256": "76CE3D5E16329611A3BD0FEA58F73A609594407A26512E3B946A3638F8CC911F"
+  },
+  {
+    "Path": "addon\\integration_contract.hpp",
+    "SHA256": "FBB0DCF114AD48955095B2CA6A9B22176CCA7E7CCF69F136FE13C705992451DD"
+  },
+  {
+    "Path": "addon\\loadhook.hpp",
+    "SHA256": "373F553AA08797FD3A287E071D3236809AC55DE3757234E0157D4E3ED7710479"
+  },
+  {
+    "Path": "addon\\midpoint.hpp",
+    "SHA256": "91E47462A3DBB48EBFB9B07F2C884CF19A81B22421D208D9E702D732263BC362"
+  },
+  {
+    "Path": "addon\\ngx_bridge.hpp",
+    "SHA256": "ED327747DD8F9ED2634C937B5D4EB2C3AA45E4BEEA84183594F59BFDF0F3B671"
+  },
+  {
+    "Path": "addon\\ngx_hook.hpp",
+    "SHA256": "0450F2303BCE3F1495AA6D8D2DE4BFDECBE01A0641B44412BAD9027DDC5392E0"
+  },
+  {
+    "Path": "addon\\observer_scope.hpp",
+    "SHA256": "25BACC5065008C67793643C1B320C1872261B4F43FF74F16E8B39DEE32C0B78F"
+  },
+  {
+    "Path": "addon\\provider_profile.hpp",
+    "SHA256": "E2F0D8FF70A18C4D5E91016282B4F733835712D62871579D4E8824E55ABB8079"
+  },
+  {
+    "Path": "addon\\provider.hpp",
+    "SHA256": "B259272314E94FE15DF18B0D7076EA81F1B5BA30B741A83F564AD7B872BFBEDC"
+  },
+  {
+    "Path": "addon\\ptx_compat.hpp",
+    "SHA256": "ECB6446583B9E2A453A98ACD923ADA4A61F61D8EFAF5ED25A13B981B3D138BE6"
+  },
+  {
+    "Path": "addon\\ptx_retarget.hpp",
+    "SHA256": "4DB0CE0F3650546A893E4608610E49DF18CD0A94A50F5A9928DC01E25CA50EEE"
+  },
+  {
+    "Path": "addon\\quality_config.hpp",
+    "SHA256": "E064E351182F94F4ACB9472640B511D472638F537EAF880EC353C3EA4B037F38"
+  },
+  {
+    "Path": "addon\\quality_guard.hpp",
+    "SHA256": "8BFF5EA141C71B27129C3E3C34C6B84EBB007488DCCC43C82432E05570A69A6A"
+  },
+  {
+    "Path": "addon\\reshade_compat.hpp",
+    "SHA256": "48732D99A5B6666AD7DFF9C5F961CE8DFAC5D1D529967C73CEAB37523ADAF925"
+  },
+  {
+    "Path": "addon\\streamline_bridge.hpp",
+    "SHA256": "BEFC6D62E6648E6837B1BF5F9432AB5DF46E5D71CD5ED0FCFE3A817C772B44C3"
+  },
+  {
+    "Path": "addon\\ui_candidate.hpp",
+    "SHA256": "B5654D8736A3FEEE1C3A801D490FF51BBA9F58153056F0DB468A682AFAD5BA78"
+  },
+  {
+    "Path": "addon\\validated_warp.hpp",
+    "SHA256": "B26A60D23A382940B644181AFD22DA28E9461C5802CD69D0E37A5A957CEBB683"
+  },
+  {
+    "Path": "deps\\detours\\include\\detours.h",
+    "SHA256": "7B4D7928B82DFBCF7559142B2DEDEBF0EA34063D7F3D7E1D996BEFE6F19B1F71"
+  },
+  {
+    "Path": "deps\\detours\\include\\detver.h",
+    "SHA256": "1BA5F3CB0218C7FFD478DD2CCE524B61BCE42C967D4C03D1462882D48A227E52"
+  },
+  {
+    "Path": "deps\\detours\\lib.X64\\detours.lib",
+    "SHA256": "2EC3FCE59879F59C4EB247494DC935C2B309CE3C9399B9614E050FF10BB0329A"
+  },
+  {
+    "Path": "deps\\detours\\lib.X64\\detours.pdb",
+    "SHA256": "52D88C06F87E07881E4DEC814832C6B8B5267446D6EFE63A7AFDD8B55B3EEC34"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_defs_dlssd.h",
+    "SHA256": "AB2EF79188233B199CDEBB224A283F2B7D8F03EA95ADF880A8B225AEA2F08586"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_defs_dlssg.h",
+    "SHA256": "81704EB9AC93C97127E79856F601E56FFACFADEBB61B8EADD3BA316FAC3DD6DB"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_defs_vk.h",
+    "SHA256": "43B821C5D297D86165E6D2F96A476F5C30F2158C7D5A0451425C6B927ABFEC88"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_defs.h",
+    "SHA256": "A9481CBC78D53EE56639F0A573EC095C6C1EA1E5F296D139C20C42BF342C2E1B"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_helpers_cuda.h",
+    "SHA256": "18F2FD3ADDA56124A975A9E5F7347E61CA2E25BD58E78B7922EDF6C5C0857281"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_helpers_d3d.h",
+    "SHA256": "9B3C356CD2D04E7924C0B6B97FC1F1A37E5D30095A8C22133A5A08398CEF2C4C"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_helpers_dlssd_cuda.h",
+    "SHA256": "32A74447C395586DD8C8C4D1EF29DF1A327A040DC12B01A101723DC083C47BF1"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_helpers_dlssd_d3d.h",
+    "SHA256": "BE5ECFC8F5ECB17861600485CE9FB617DC56FAA5F79EE1525081A54BF4281475"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_helpers_dlssd_vk.h",
+    "SHA256": "89351368B07B0AFA28E0923DE1B0276991EFB9B5E95922C89047DFCFCE70BB7D"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_helpers_dlssd.h",
+    "SHA256": "4144EF09594DCF0DDEC5C2DF1E0F87531049AB76DAF995A8607B255C2BDB0DF9"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_helpers_dlssg_d3d.h",
+    "SHA256": "6343BC03FE12238F19A6D02C427EB9F9DC72433C58A00C164B05473ACA710ED9"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_helpers_dlssg_vk.h",
+    "SHA256": "EEC70917A474A1F8BE114EB11D5DA3028CC752C410C3B3F12E03B29017D60726"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_helpers_dlssg.h",
+    "SHA256": "A8ABDF14B689F2CBBBBED9991CB369FACB1F8D5B260C5AE4426A0E9146D95DDE"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_helpers_vk.h",
+    "SHA256": "754697D9FAA93913985FC91FCEAE2073763461710D742A1F262CED2A7B6B62C9"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_helpers.h",
+    "SHA256": "4569AA7566667D8C0D93C8E50DDD3F2C4FA1C89DA536FFDC2571BBDC97A539E9"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_loader.h",
+    "SHA256": "E0F8339E696DC26568A9D4AEFEE90C8497CE5AE048CC8B24CCC213CD3A8A2073"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_params_dlssd.h",
+    "SHA256": "7E4FC6D5C84B436D31E289F863762A178AB2EF5D8C1FF40B614B01B342385F05"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_params_dlssg.h",
+    "SHA256": "82B1D573B4B48D4CEFC26AC01162A45646D99F0B84806DAC9DB3516CC5F733B5"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_params.h",
+    "SHA256": "51A1F94116CF82F95C63A2C197371ED22E08BDDB09918D36CC6E2AC712753C80"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_standalone_common.h",
+    "SHA256": "231C6DEB2515B5D30DCCBC18A992CD5A2470A6BF3833B2A3B0FC7E3912BD9756"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_standalone_cuda.h",
+    "SHA256": "9CCA6B101025E2C9E915C8E7F1DD8798DC7CBB7AE45DC5E98D7F73CD3045BFB9"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx_vk.h",
+    "SHA256": "3BE54D0103CCE02174FD34912C60C9F40C73B5EEC919E42613A2268C589C53AD"
+  },
+  {
+    "Path": "deps\\ngx\\nvsdk_ngx.h",
+    "SHA256": "96F21266A05EF06BB49F58C89DE1A7845F2D9B1E0E0E069FE03740B8EAF0344D"
+  },
+  {
+    "Path": "deps\\nvapi\\License.txt",
+    "SHA256": "BAB44777F0F4D0333479EA0BE6E24C084464A8CB64B98F1253FCC3DF70F6ECCF"
+  },
+  {
+    "Path": "deps\\nvapi\\nvapi_interface.h",
+    "SHA256": "D279F81E7F92F2743BFEA2EC7ADA693001805E13645EB1C6F2AF44EF9C342834"
+  },
+  {
+    "Path": "deps\\nvapi\\nvapi_lite_common.h",
+    "SHA256": "3904BAAB8E8501A53746DDF4E5B13A2E1D5ACD6EE50F8C3C2EADD8E4D62C55F2"
+  },
+  {
+    "Path": "deps\\nvapi\\nvapi_lite_d3dext.h",
+    "SHA256": "2322DB28A2F7384FF6DF6FD1110B48E99660FA29956A2CBCD28A9D7157017E1A"
+  },
+  {
+    "Path": "deps\\nvapi\\nvapi_lite_salend.h",
+    "SHA256": "92017F8E26F585601F4EAAC475FA9E542EAA2F99A80E376DDE52F2F73AB18E67"
+  },
+  {
+    "Path": "deps\\nvapi\\nvapi_lite_salstart.h",
+    "SHA256": "9DB770E52947B33D68B0C1F17BC21EDD9D736B824CCECEE2C5C527D48A89BE93"
+  },
+  {
+    "Path": "deps\\nvapi\\nvapi_lite_sli.h",
+    "SHA256": "2A9C75FAECB32BC7A5237A4B83CC28A6A488C75493E44BF28688ABF3FEC01A34"
+  },
+  {
+    "Path": "deps\\nvapi\\nvapi_lite_stereo.h",
+    "SHA256": "BD6FE69136CFF36C73A9967A7CEF37186791D9B7C3EB3AE7AC61B4EFA628325B"
+  },
+  {
+    "Path": "deps\\nvapi\\nvapi_lite_surround.h",
+    "SHA256": "197AD1E4762B2243904B0A13418747436AE70E4824099BF56BE4804C4C29956F"
+  },
+  {
+    "Path": "deps\\nvapi\\nvapi.h",
+    "SHA256": "76BBB71107C1388134D41712BED56BB6D80EC426F9BB2C168E2D6941B90F16CA"
+  },
+  {
+    "Path": "deps\\nvapi\\NvApiDriverSettings.c",
+    "SHA256": "A8F3FE52EB094AFA2DCEED72C2A9424CE8C72AD19B62D94B7A16F00D822B5328"
+  },
+  {
+    "Path": "deps\\nvapi\\NvApiDriverSettings.h",
+    "SHA256": "95FFDA903832840343A81189E052A0756774BD92E4B37F2DC49598D493F951D4"
+  },
+  {
+    "Path": "deps\\nvapi\\nvHLSLExtns.h",
+    "SHA256": "0DB84E21DE4DB66EAC4DCDF9666DBD171D6D3150C4999D796C012B4BA984E684"
+  },
+  {
+    "Path": "deps\\nvapi\\nvHLSLExtnsInternal.h",
+    "SHA256": "9AFA085E4596D2761DECD56C9AE8EF62B0B0F70069E75A33B989E95E4A6DD2A6"
+  },
+  {
+    "Path": "deps\\nvapi\\nvShaderExtnEnums.h",
+    "SHA256": "9E2532FDC36281FD6923084078AD55FD4474337BF1EE3D9E123335D3B5158165"
+  },
+  {
+    "Path": "deps\\nvapi\\README.md",
+    "SHA256": "F5BEB344E32AB0F0F9DAB8E07A4DE8797266716564B488F1A923989771872898"
+  },
+  {
+    "Path": "deps\\nvapi\\aarch64\\nvapia64.lib",
+    "SHA256": "C13FD71C12CD7B20F341EF4113403231A49C2BB5B1DF5492330366FD8E373F92"
+  },
+  {
+    "Path": "deps\\nvapi\\amd64\\nvapi64.lib",
+    "SHA256": "901E479E548D41C30688C7481F0C6353C0BE7FDEE978796D27D87C32E19CE172"
+  },
+  {
+    "Path": "deps\\nvapi\\arm64ec\\nvapia64ec.lib",
+    "SHA256": "B2057871146554100FD628EA781F2C0811D67206A6D322C3F7A3A2ABE0EDF74F"
+  },
+  {
+    "Path": "deps\\nvapi\\docs\\R615-NVAP-Reference-OpenSource.chm",
+    "SHA256": "A1B769FBCFE9910BD121E74598CB178CE55B24131CC61CB7131C29E07EA905EA"
+  },
+  {
+    "Path": "deps\\nvapi\\docs\\R615-NVAPI-OpenSource-Release-Notes.pdf",
+    "SHA256": "B9C404FC69C5B8DE1F975F95D36A733BD28F892EDC76D0E3A9E166BF110EC827"
+  },
+  {
+    "Path": "deps\\nvapi\\Sample_Code\\CustomTiming\\CustomTiming.cpp",
+    "SHA256": "8A112FE21AD19D58ACA88841098FC7D03B8934F00E9B1CEBE657D7D3520970FE"
+  },
+  {
+    "Path": "deps\\nvapi\\Sample_Code\\DisplayColorControl\\DisplayColorControl.cpp",
+    "SHA256": "84EF9E019A458B36145611BCBE2FE9D0346B93015724135EB3382B1468EB15E6"
+  },
+  {
+    "Path": "deps\\nvapi\\Sample_Code\\DisplayColorControl\\NVHelper.cpp",
+    "SHA256": "B95F90CF3A7AEF26F3ACFB4B164B57CC19877D8569A8B232274EB67DBE1F4583"
+  },
+  {
+    "Path": "deps\\nvapi\\Sample_Code\\DisplayColorControl\\NVHelper.h",
+    "SHA256": "4B07F0EE48A6F8E98641FD055267C3AB4A6564D65D56FD115A3EB8708089B9A0"
+  },
+  {
+    "Path": "deps\\nvapi\\Sample_Code\\DisplayColorControl\\stdafx.h",
+    "SHA256": "608BCFDFD8CB4B6A91D6DE42E08661B557941EDF925EF664662C41C9832D1DB3"
+  },
+  {
+    "Path": "deps\\nvapi\\Sample_Code\\DisplayColorControl\\targetver.h",
+    "SHA256": "DCD69C432D12E97F4A283F8913A483D1ADDB4A1EFCD75EFFA7425DC92AA18C7C"
+  },
+  {
+    "Path": "deps\\nvapi\\Sample_Code\\DisplayConfiguration\\DisplayConfiguration.cpp",
+    "SHA256": "BC0E36B7FE95B05746D3C8C8D741AE57950E54887E8DCAFB6D17F37EA059F03F"
+  },
+  {
+    "Path": "deps\\nvapi\\Sample_Code\\DisplayConfiguration\\targetver.h",
+    "SHA256": "119715CEC6EEA60FA45D786962C545FE52580E57E9BC2FB0CF2010E51C62DAED"
+  },
+  {
+    "Path": "deps\\nvapi\\Sample_Code\\GPUHandleEnumeration\\gpuHandleEnumeration.c",
+    "SHA256": "0A766B02D70BA7E77A632028D98A8EC7AFF6EEE269420973E47FCEFDF2355989"
+  },
+  {
+    "Path": "deps\\nvapi\\Sample_Code\\i2c\\i2c.cpp",
+    "SHA256": "5CA77CFAC48A28E6BAABCDC04EB1C45F781B04D90E73FCD65BCE5D024B8F8870"
+  },
+  {
+    "Path": "deps\\nvapi\\Sample_Code\\i2c\\targetver.h",
+    "SHA256": "119715CEC6EEA60FA45D786962C545FE52580E57E9BC2FB0CF2010E51C62DAED"
+  },
+  {
+    "Path": "deps\\nvapi\\Sample_Code\\QSYNC_Event_Registration\\QSYNC_Event_Registration.cpp",
+    "SHA256": "62164128996BA7DAE2200C6662EE98276F968D062FD2DDF0BE184C80CD2C0146"
+  },
+  {
+    "Path": "deps\\nvapi\\Sample_Code\\Sync_Configuration\\Sync_Configuration.cpp",
+    "SHA256": "4E8548FDEEC715450FD83638597BAC48C80D0BB5D2F479E82CEB073A99B2B9B9"
+  },
+  {
+    "Path": "deps\\nvapi\\Sample_Code\\Sync_Configuration\\targetver.h",
+    "SHA256": "B5E0F7F6C03C70B8C935C8250C1DF8E36F2F83C6E1C9B9256948AF8426ACDB72"
+  },
+  {
+    "Path": "deps\\nvapi\\x86\\nvapi.lib",
+    "SHA256": "92056C461921C509EAA135C890A47180E822BA8872CFB507C1D452F813A1782F"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\.editorconfig",
+    "SHA256": "3A1A4B82C37CF8482C32356838F7A9A9C922546BA96993642DDA4E40C226FF9C"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\.gitattributes",
+    "SHA256": "5F958885B940659420A6419D01FC81D64FC6BF9F8102D4129924E8FBD7B1E1A7"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\.gitignore",
+    "SHA256": "87CC843CB0EED3CACA585A2AE2A4F23C6190F2BB87041CA67A81C0CB44073F7D"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\imconfig.h",
+    "SHA256": "FB8E32B9AF9AA7DAD5EC5C5BC862537F5624CB39A814E6D3B36B4629A50B6599"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\imgui_demo.cpp",
+    "SHA256": "BB54E145DC768ADFA76C208D2B1C7359D64E48C69448B22988FCB5DD9EC6CFC3"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\imgui_draw.cpp",
+    "SHA256": "FA3254D7D074E8FC27756CA64BFA63455CF72CD2579977FCA40C25DC692305EC"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\imgui_internal.h",
+    "SHA256": "D34F90D1F5E6F364949AD1CC3E5562F7FB18781EC3988D1282A59528F39FF3D6"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\imgui_tables.cpp",
+    "SHA256": "66E8CA12A4C42B9C953152059B784F2DF0205AC8772A969123887A755C9D3FBC"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\imgui_widgets.cpp",
+    "SHA256": "EE1EB52CCA7C5A0ACFF9A7B3E06833600B28F465E6BD44D2EF1887227D3637DE"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\imgui.cpp",
+    "SHA256": "E97F4CB564B750108CC219372ECA8AB7CAC8DE892FC57B3A1932B0A170E1ED80"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\imgui.h",
+    "SHA256": "2CA314D19C7E1EA85687A9C1E37079E0CC823939A551B3E6B2453FF0AF9FBF13"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\imstb_rectpack.h",
+    "SHA256": "BB53504995E983D54B1AE06EA727F0B39647E5E205B4BF7DA01343953974951C"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\imstb_textedit.h",
+    "SHA256": "24A8DB00354AF8F4057417841635A1B6DFD8986F1608336FE6F10D6FD9769AAA"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\imstb_truetype.h",
+    "SHA256": "37AA1D602706262BF94DA2F83EFAA8175EBC2202EDE13DA96B692FBCF8B4427B"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\LICENSE.txt",
+    "SHA256": "55E058CC5899E6077A819AD1005D6D1F4528F65AE100795C9692F9FA6525A8CE"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\.github\\FUNDING.yml",
+    "SHA256": "F148F9E8797B9A4921D864C541325427C55AB46F191B54975F9D84FEF8289F49"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\.github\\pull_request_template.md",
+    "SHA256": "60A5BAE2903B50AEA16F9BD2C2F76FAA4BC7B9EE5385BB4B555E6287BD327037"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\.github\\ISSUE_TEMPLATE\\config.yml",
+    "SHA256": "D6D81427CBFD6FB2C87462698C241FD6C31E47025C137498E50B8A01B228CB95"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\.github\\ISSUE_TEMPLATE\\issue_template.yml",
+    "SHA256": "3F1BA33A66A2EDC46614D68A49C7D18D0DD594283F12A95C9897B0D0B46948D8"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\.github\\workflows\\build_windows_vulkan_libs.ps1",
+    "SHA256": "56B63E4C9E209569E4F74DDDCF34044C12B338879FA143A8F8557D41CBC95AC1"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\.github\\workflows\\build.yml",
+    "SHA256": "4D1FB68CF1037ED518490C659AB2A8FC37941DB1DB955797BFB13B2FB522DFC0"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\.github\\workflows\\manual.yml",
+    "SHA256": "F41DBE507DFA280E7B3E9A293F3EA88DE519390C4AEF0CBB169DEBB3EDCB6A75"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\.github\\workflows\\scheduled.yml",
+    "SHA256": "FB0B9E6E07C1067C8C765BA517E2E675DEBE7776937799A6FBE225763799DDCB"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\.github\\workflows\\static-analysis.yml",
+    "SHA256": "620179D05039B2D80263BBFFDF46BE821B9619F45CE3FF8D3963A07940C5C2A6"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_allegro5.cpp",
+    "SHA256": "C8124C41A65D82F20393E2DD7C77C9EBF909B235F26E8DA83FB20E6082C78577"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_allegro5.h",
+    "SHA256": "E578B50845203CFDD621128776FA43C98C015BCCBA59C1F3E19AFF72C976500F"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_android.cpp",
+    "SHA256": "9D08BF7AFE419BDBEC03A2D416810F9B71D896780EC301D6570F5E24649AEA9C"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_android.h",
+    "SHA256": "75AE648596B01C6D968A159E1F8890E0F4F56E9CA1CF90231CAF9C7DCE7EE5BB"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_dx10.cpp",
+    "SHA256": "81B52511D558A1472CD7B92A385760EACF6D7D0AC48B0E3A51AA8E96DF21A657"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_dx10.h",
+    "SHA256": "41DE0CD2DE4DEA226C86EC760CCD43D5FD646DFB125AA6309B274ADE437D192F"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_dx11.cpp",
+    "SHA256": "0167B94EA9732A4185C203C9BED5ECB4020BB30EE12C34025866A9ADFCC6A906"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_dx11.h",
+    "SHA256": "AE62E067D6B72470C8ABD529DFB6BBC80D7AA996ACFDAAA4DFF00379F3D6CFB5"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_dx12.cpp",
+    "SHA256": "4932F938C6D48EDF91B45078CF0BDD0BF9AD46CC5D4B9A48873528046DA7C580"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_dx12.h",
+    "SHA256": "9127655FEEC0E45BFA197F7BAE96C21C81B813448DE83410CDF0DBADBD8B33B0"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_dx9.cpp",
+    "SHA256": "FFB5F2F0CA2828D1F1120B9BE94C2EC8A4BE6901177014F1C8F3A791783FE634"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_dx9.h",
+    "SHA256": "91787CDBEB73F082B7968E64C437B41D30CDE79472F4593949E84655C7C09F5F"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_glfw.cpp",
+    "SHA256": "91C55F5EFCEAEB5BE9CCBA34CED6C4881977F8192B1DE5522F6CF2C1A48F1868"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_glfw.h",
+    "SHA256": "C2D64CE8D2F328A041704B1CAADF34FBC16AAEF2EE7CDA877392A6C06CC414E3"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_glut.cpp",
+    "SHA256": "425F4C8077713F4D253211573C8F0542DEF7DDD350CB23EC44F8904188141265"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_glut.h",
+    "SHA256": "30461E68AE146F17EE158800BC01BDF20E767BED59A82BC179D15160E8BE01CB"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_metal.h",
+    "SHA256": "DD843B2DD4774F56E40371677E8B3AC6FC5AAB84E897825442B819BC41081B7C"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_metal.mm",
+    "SHA256": "0D5675C4B406306ABF818AFCA232660A564E0853F21B5CCA2DCF02A71F580F78"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_null.cpp",
+    "SHA256": "C1CAF23D879B6FBD5B59E60C49C6AA1895A6D90470EA3E169487C13BE3A06AEB"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_null.h",
+    "SHA256": "BBDF9BA0F25675B8759C174BE522EE8BE3DD33B097EFFED89876A1EBFE68D3BF"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_opengl2.cpp",
+    "SHA256": "2D0B3A8E48EB9EFCE2D4A1AC129681273C1027D8C858A0A4E533B03A0E227E4B"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_opengl2.h",
+    "SHA256": "AB62F7C09A6CA893EA7C78797D6B576CABF9CC8DE280ECE4E2D5E15DFDA5E0C7"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_opengl3_loader.h",
+    "SHA256": "8DCF865B510E65C7C419D5C58A2F3FD5C0A40AC5699FE5B7034D866ADB29BB87"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_opengl3.cpp",
+    "SHA256": "C969645BC0F9C28E411E97FFF2BDC2D6B78702A4B8291525A37368C3D8873291"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_opengl3.h",
+    "SHA256": "E7394F2918A0871A2C24CBB5D1CD3725121CCE9AC13316618EC34C36C4BDB851"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_osx.h",
+    "SHA256": "D43324419C628ABEF3CFAD2A4684754EE714A1175168FBD8C6F5734E1314FE56"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_osx.mm",
+    "SHA256": "D7F312CC2F307EDBB30D61E9836C23B4E3C8E3A0856F1C4179FEFB36EB8E445C"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_sdl2.cpp",
+    "SHA256": "B9AFB418E1B6D46DFCA861FF7761D34A3035AA950528C8C041B8656A4E390996"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_sdl2.h",
+    "SHA256": "6D61CF8D6B9BE3BBD911B4060DE1220C3D5691D4AD09643B6CC44D522BDDE3AC"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_sdl3.cpp",
+    "SHA256": "389E544DDD3ED373BDAEB6AC14ECE5553C92A80D9751CF10ECD451FF1B6CBC96"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_sdl3.h",
+    "SHA256": "9415A8375E57D493D69BC30A488D475BD0D522307572D45B612DBB534B8582F9"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_sdlgpu3_shaders.h",
+    "SHA256": "7F691FA665DC896AACD710C9AA1E3C33534C943AFD04D6E2A2727505DD6B5ECC"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_sdlgpu3.cpp",
+    "SHA256": "249E70EFD049C6D3D3B52177632AEB40E72C49B5E607CE197E43884C753CEAA9"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_sdlgpu3.h",
+    "SHA256": "5A311FAA72779F410A55237185FFA6FA6654812A0CCD682C830A0C48161A3B19"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_sdlrenderer2.cpp",
+    "SHA256": "8A50EADEF08022B9F9430C791273274413E6358280DF0A0C5B15C785BC04F004"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_sdlrenderer2.h",
+    "SHA256": "B6D461BB69BA036C0F935DB47AE22C724F78CBDF1F8A93702F15FCCE77268EA1"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_sdlrenderer3.cpp",
+    "SHA256": "93E3E192D49AD5C126FC2BC51EF9C7D8ED3EE5176FC9B68C6B16586DB7D0C114"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_sdlrenderer3.h",
+    "SHA256": "0FF99EEC3A57703058296376091A1AE399FD9CB6B2C1CCE4570818E9E7F17B0B"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_vulkan.cpp",
+    "SHA256": "AF53CFE867184C94C736B8BC620E17DDE8A61BAFA3F0B6F43B9532E065F08AEF"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_vulkan.h",
+    "SHA256": "F90DAB036827189E549A03A13414B013CE1F595B5ECF7B55787845444E2A92E9"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_wgpu.cpp",
+    "SHA256": "1D92959C77325BC95AB01137F289FC7027B18C2FFA5832098AFEDF9EBC5F81BC"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_wgpu.h",
+    "SHA256": "1DADDE381998CC20C3EA0C231E70264BE4BA4BFF79668498C8DB94D60D43C534"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_win32.cpp",
+    "SHA256": "76B8AFB8851888B4FAFD0B6BAE05335C1478AAE6B50C1B633B3BE036631203EE"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\imgui_impl_win32.h",
+    "SHA256": "D71CFDBA658C65EADF90C47CD2B73F023674A57E4ADB577636D35002FE00AA9A"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\sdlgpu3\\build_instructions.txt",
+    "SHA256": "680D65237E1407A3048AF36181E2247CFCB1D6B1AD83A8CFB6017D1AD4F46FA5"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\sdlgpu3\\shader.frag",
+    "SHA256": "F36BCA8F63D3D6847104367B1155EE747FBE0BD6CC89D3471F4F5F1929EC7E71"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\sdlgpu3\\shader.vert",
+    "SHA256": "847C769112C31F0A9314C4A7815F3BB1377B4C15CED5BF95188157A5A996076D"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\vulkan\\build_instructions.txt",
+    "SHA256": "B750DBE61737913C4427BC4599F9AAFF4B92C4D0341F26A35B89693806E02018"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\vulkan\\generate_spv.sh",
+    "SHA256": "C3ABB9FE51A4C033003DDABFD97C79583C89675572225B2D7B615619B58EE798"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\vulkan\\glsl_shader.frag",
+    "SHA256": "EE9F22DF6913337E9044925A81A65FAAE92ED1043EEF9837BA2CFB4529267835"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\backends\\vulkan\\glsl_shader.vert",
+    "SHA256": "CAAB45CF9D82EF4B10093709711A9C9D379BB61D68B8C215E18917B7E0F13008"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\docs\\BACKENDS.md",
+    "SHA256": "C733342F2A83C84E75E8088687E48147D6FC3981049B4BFAEF4BCEF98DC3D56A"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\docs\\CHANGELOG.txt",
+    "SHA256": "A8F87ED7F5AC0BF1C8693EC9767A5303E4E68EA050DA25DB192A84F46591A9B7"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\docs\\CONTRIBUTING.md",
+    "SHA256": "9C3C0DE2C13248C2368FDCF9BAAE97668E3B9E477C095FC3E7720F695E4F223E"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\docs\\EXAMPLES.md",
+    "SHA256": "4CC0A3E1C30B153FDF39AB502DEA8C5425E6AC67C3BDA8CC740D5C3E9B831155"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\docs\\FAQ.md",
+    "SHA256": "11D066CFBE59914D554051238822B7347DC08EB8AE9942C6787EFB93566934F0"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\docs\\FONTS.md",
+    "SHA256": "10B2A1251D06FB0079941E8A01D674751716936D89F24B4AC418F0F31C1F7F9F"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\docs\\README.md",
+    "SHA256": "14399CFF3FDC65A9F97C0BC2B88BAFDB59C87F5F4E7FE180C16E2FB56A305533"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\docs\\TODO.txt",
+    "SHA256": "EBEC6E27AE636C8CD7792C6513211EE702CE77DFD87D6A9BB97D19A39DDDAA95"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\imgui_examples.sln",
+    "SHA256": "3F4B732DD2C054E4C6AC5B3ED197939DF23B3705904970610A8D3FFB915BD3EE"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\README.txt",
+    "SHA256": "FF66BBA4B9A802C5455F7E70084F2C173B2D0DFCBF268F2BD324885798593EA8"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_allegro5\\example_allegro5.vcxproj",
+    "SHA256": "25D62E379B60127DBB52BE4BEB348CD139B0631DD3720C2428010DEDF2EB5DE4"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_allegro5\\example_allegro5.vcxproj.filters",
+    "SHA256": "B36E525C43ED14EA815C86ADE45D7ACDD6576D0BA8F8F1E4A339093048B6E152"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_allegro5\\imconfig_allegro5.h",
+    "SHA256": "F3EBD4E3F9B3991D21F9BCA8DDB1E537FBDF8F336AC61B36FB63907425A192E0"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_allegro5\\main.cpp",
+    "SHA256": "C89992E2EFB418F3E900A10112735F4D57AB4C3B4BF4BEC6D048D38EE9149317"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_allegro5\\README.md",
+    "SHA256": "F9880D8628349BF479E6CE7B477E99B1AD03E3F48C4D15C3E11ABC3001A23198"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_android_opengl3\\CMakeLists.txt",
+    "SHA256": "F820F532B387EF8F82C585CE6FA6950F3AF068E2CC19BD4616C196404E45B85A"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_android_opengl3\\main.cpp",
+    "SHA256": "7E4C8B34F53A72691AA46D3A9F8E197435DA3EA8F84779A533064F79865AD9AA"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_android_opengl3\\android\\.gitignore",
+    "SHA256": "E84B30143E9BC2C9A498BE3D2C20618BF39105FBEB6351651B4B9367DE7DE3D1"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_android_opengl3\\android\\build.gradle",
+    "SHA256": "7D17A498C9BDFC815205A5752657DD57A7A50C1BA76ADCB842E6254717B5A761"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_android_opengl3\\android\\settings.gradle",
+    "SHA256": "610387435A2147DB77D42CE6459FF1D34D29394FA9887A263FE41D5B40A06892"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_android_opengl3\\android\\app\\build.gradle",
+    "SHA256": "3E42FD58305DA52FEAC760258DD9846142B62E5FE32142B8B19A246DA2000860"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_android_opengl3\\android\\app\\src\\main\\AndroidManifest.xml",
+    "SHA256": "49D2C1B5D28A8CCBE1F6A6E56D3A605041B0023548F94FF9A415667806277B31"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_android_opengl3\\android\\app\\src\\main\\java\\MainActivity.kt",
+    "SHA256": "67DB6C248AF6BE97F33FE5EEF1F6C0F9FC616FF05E48864B0924F390199E916E"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_android_opengl3\\android\\gradle\\libs.versions.toml",
+    "SHA256": "51F2BA6D0C2A16BC674D9BF0BF8E8F7847780AF2F66778433595C63697F8CD34"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_apple_metal\\main.mm",
+    "SHA256": "2A44266ED1FDEF36CA53B5C1E59AAAB59572AFF9D113461E359C2E2EA87EFECD"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_apple_metal\\Makefile",
+    "SHA256": "00F9526EDA8862293D6CD81E129FA7CC13BD3E8FD93BC70BA63CA343AF8540EC"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_apple_metal\\README.md",
+    "SHA256": "C0991A8B6BF51CE1E580E3E4EA86237767779E3C17F962C15530CB88A87DC925"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_apple_metal\\example_apple_metal.xcodeproj\\project.pbxproj",
+    "SHA256": "6EA7E66B3256F5B0935119737A115DDA43A433334D8C8C303099053F13262C39"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_apple_metal\\iOS\\Info-iOS.plist",
+    "SHA256": "F1D7E2CB10EF6B10C3CF31FF705867DFA20969882B338865B055870B69238820"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_apple_metal\\iOS\\LaunchScreen.storyboard",
+    "SHA256": "108F181EEDC6C4F03D1B3B53C1E6CE5C737663B4C33F63380A2557F1A6FCD51E"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_apple_metal\\macOS\\Info-macOS.plist",
+    "SHA256": "97102296B109AD28AA43B6C27A15A1EF4CBE1FF03452655E8B206F08113D1F81"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_apple_metal\\macOS\\MainMenu.storyboard",
+    "SHA256": "790070EB4C5FCE0B3E3A6B410F73C83C96F440B5DF0906C3570BD760EB68EE28"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_apple_opengl2\\main.mm",
+    "SHA256": "4513997A3C7540E317CD4321F4F4B6EC656EF933A36AF807B4FB0A3565E75909"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_apple_opengl2\\Makefile",
+    "SHA256": "DD7A1F2F2C1B3415FE48EF342DC9AB60BAE6A1EDB50EA73C20E48EB640B8F1C9"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_apple_opengl2\\example_apple_opengl2.xcodeproj\\project.pbxproj",
+    "SHA256": "71E40D1218E4DE496843D9B1FC357A36A63D1C17B4AB44720A58298A44B1BC4D"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_metal\\main.mm",
+    "SHA256": "6581FDABF5E8BF3ED689CD6481B018C0509185BA30A4711A24C2F6B034E8A881"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_metal\\Makefile",
+    "SHA256": "387B7385B278528E48F7FC04727403F2F3A12C596B7E91AAE477A4E958E8DE96"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_opengl2\\build_win32.bat",
+    "SHA256": "ED87235E307E654344F5A0502EC4E32CACA7B8908A0CD935A24044287D163D78"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_opengl2\\example_glfw_opengl2.vcxproj",
+    "SHA256": "EAE7E2CC611ED91BAB15EB9CAB9A01994BACC67DB971C5FFBCFA241C4BFB811D"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_opengl2\\example_glfw_opengl2.vcxproj.filters",
+    "SHA256": "1A2A0F8F8219EE33B0671DA2A4695B8C5A8E94087D610E3622F908FB813716F5"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_opengl2\\main.cpp",
+    "SHA256": "A4A41AD173F3EEF596A739D5BD65DBBA42CB582327C4232A65128CABF373661E"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_opengl2\\Makefile",
+    "SHA256": "5854A2AC9E18120C625E65FD44CB31C391B103812C1EF56695DCAAA988A8F09F"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_opengl3\\build_win32.bat",
+    "SHA256": "168902068029000C56886883473724E695F5906BDD2C3AC4A0C419D18A62CC7E"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_opengl3\\example_glfw_opengl3.vcxproj",
+    "SHA256": "529AA1BCD941EB16BFFA5B83003A9ED00B529EE5D8DF900F106C4A8117D49F42"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_opengl3\\example_glfw_opengl3.vcxproj.filters",
+    "SHA256": "0437BFD9DA1906917DB8F8D850C91CCA6785220BA31DF5909BE3ADC706C13016"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_opengl3\\main.cpp",
+    "SHA256": "B716270CA7303D80D836076C13E137D52BCA1101E5147043D3EB2D2FA2FD05FD"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_opengl3\\Makefile",
+    "SHA256": "D4DE39EAF431EF0631AF33E08311ABB26FC77AD1A8840ABBC854B56C446FD3A1"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_opengl3\\Makefile.emscripten",
+    "SHA256": "8DE3D4544296338716A3B7CDCF73F3B1EAC1C84C079251B86D99B86DC1234B80"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_vulkan\\build_win32.bat",
+    "SHA256": "2CF965B8AD7C7193C845D8444BB44C0BF6276B3B088FD9AC6BDD63F1D6817E4F"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_vulkan\\build_win64.bat",
+    "SHA256": "93460427C8A425E5F2CC6203C88EA8EC256109DADF1AB28F675096A1D24F9D62"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_vulkan\\CMakeLists.txt",
+    "SHA256": "213D4EF0F23AB342DB760F658085D62A7EECBFAA6BB5F48BBEBC3956EA671786"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_vulkan\\example_glfw_vulkan.vcxproj",
+    "SHA256": "5F345E6E996894C484541F17847EBBCC5048C009C27E15101CF38E8623C8A2FF"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_vulkan\\example_glfw_vulkan.vcxproj.filters",
+    "SHA256": "CCC046F87F51B2CA98FB6293C30D9AE7D735EB7153777DF272C92543C8AB81D4"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_vulkan\\main.cpp",
+    "SHA256": "120915C91C3A7C0A4E96D00E783290FE127C68984A34A4973CD5759C2ABEBB11"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_vulkan\\Makefile",
+    "SHA256": "37D6469E86D2C5EA7BAD70CA97623A9ECF2C23FD4FDC4EE09CF64CC704E5AC4C"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_wgpu\\CMakeLists.txt",
+    "SHA256": "495BB620AAEAAA6A08F4080B4C9DF3ED46FEC9A1C79AD84AED20BD418AE7F40D"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_wgpu\\main.cpp",
+    "SHA256": "83F777277FCD6233B17D509945F6B700080E3753DE0E836BD3257BE5BF4BE682"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_wgpu\\Makefile.emscripten",
+    "SHA256": "1CB48DC6124DFD9355DEC249DBC4DDCE7094926E0CA85AA479D7963F382E9B6D"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glfw_wgpu\\README.md",
+    "SHA256": "6B9A05CB5A222708BA6EA9BC9A4F25FF06A5B420CA69FC98F489A35D79336857"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glut_opengl2\\example_glut_opengl2.vcxproj",
+    "SHA256": "9D2412A3EFFDC4F49DA10D5DC417B255117EDF19ACF97DA236E0D58DBB8BB201"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glut_opengl2\\example_glut_opengl2.vcxproj.filters",
+    "SHA256": "943A0D7D7FA3B9373B6CD1BBDA5EC8E4E6AEDEBDAA163F6E0739489A61CCACEC"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glut_opengl2\\main.cpp",
+    "SHA256": "4B609BCA410A08125934D6459B8DA4925CC5A2ED0038092B33066A5092C96901"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_glut_opengl2\\Makefile",
+    "SHA256": "BD30313C292667A24C5D333C72C714C043106C51C7159B66512BBCC20EDEE6C4"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_null\\build_win32.bat",
+    "SHA256": "7A70866DD8A926F746745AF416BAC03E4BC6654314FCFFF3FC9D28F44D229DDB"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_null\\example_null.vcxproj",
+    "SHA256": "8120C8A8E642A936A24C7011708BEBE278110A46E3B5295E5B96B8C66BCF1D2A"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_null\\example_null.vcxproj.filters",
+    "SHA256": "E16FDAD0C701698D2A3768DA2AE6B31B1A53DE275F32682B41CA78372056B6D0"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_null\\main.cpp",
+    "SHA256": "11BBAF93C6CC873EE3FD326309317984AF11086B9C9CD524A6D4CE78592B4D24"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_null\\Makefile",
+    "SHA256": "3300943A9D2CF4CC9636DA83F03FEAE00E4CCD29445976E1CC8C32D1D18FE577"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_directx11\\build_win32.bat",
+    "SHA256": "E30A6FC37B70C021B50DF5F5B170CDFE86F6CE5A1ADADBE1C29CF51CE5AC7EC6"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_directx11\\example_sdl2_directx11.vcxproj",
+    "SHA256": "A8A8E3573AC1F27B5191EBD7B991981BD043944018B83B676DD933D3E99849DA"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_directx11\\example_sdl2_directx11.vcxproj.filters",
+    "SHA256": "684DABB0A03A6F99F99C970C13D66F7E78EDD2D7455E0B68F8F1F22669D6C4DA"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_directx11\\main.cpp",
+    "SHA256": "B82D313CA766CA4B611BAF027CAD6BB5F9C66E09B486137A54C35281C8CEF2FD"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_metal\\main.mm",
+    "SHA256": "BCA0A025DF3E37104D4724CB59EBD885771DBEBBD1D15B79CDBF188941896B42"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_metal\\Makefile",
+    "SHA256": "AEC1AC5E25ED423D9D25D5711BE7114BB9A8CC2E5E62C641A4C0EAF579935856"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_opengl2\\build_win32.bat",
+    "SHA256": "DA199D36E6D705C587D9F407F2EDD4BC206C2E3AD550DAF7F2961E15E8C2ABA4"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_opengl2\\example_sdl2_opengl2.vcxproj",
+    "SHA256": "0185060BB027424DE5951468F3322A082145190F1864BF5F417ACF878E1F343D"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_opengl2\\example_sdl2_opengl2.vcxproj.filters",
+    "SHA256": "71FFCA9592F8FAC57559C9645F2B6807A9A0A8231F8391C3C4DE22F958822AEA"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_opengl2\\main.cpp",
+    "SHA256": "D6EF5D4099667E4CC5A5F932893EEE4F63BA09D6640DA4A722540904A0D2B458"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_opengl2\\Makefile",
+    "SHA256": "7112397F365B176EE6C9993B2BF617174BFAF850A741DFA4AAFE2E629AE7CF61"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_opengl2\\README.md",
+    "SHA256": "3DFF43FD28EC475ED81679CBA18DAA76F3A48FABC812D1AF4B7FB8B947FD5F30"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_opengl3\\build_win32.bat",
+    "SHA256": "0193B5F3495C4067649E5F022E91BC68367652B8D8BD24561D2E3C673233E27A"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_opengl3\\example_sdl2_opengl3.vcxproj",
+    "SHA256": "871CA4F9BA68DA4085134104863284D7871E57B3B448C33DCDFD13B440082783"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_opengl3\\example_sdl2_opengl3.vcxproj.filters",
+    "SHA256": "8D2F278F1E4773D7F4704DC81572B163B345F568D967E7586B74DD879C745B3F"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_opengl3\\main.cpp",
+    "SHA256": "D0B7468B2E2D77493FB34BB405864FF1F21B584F9A68199CE6743FEBCB514F68"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_opengl3\\Makefile",
+    "SHA256": "F8306C387DD6B0248986F0F7FE1EBD20E2CD6AE796B6085C88971D5EF75359EE"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_opengl3\\Makefile.emscripten",
+    "SHA256": "93788E9C7830E194C87BE6D0C0F94697D48CF9B2D6C605E66F4BAD0F6DC22C6C"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_opengl3\\README.md",
+    "SHA256": "2C55ED80E4B5A3088A9BD279ECCD4986BD2C5A89FA9285E7E13C86E72C952EEC"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_sdlrenderer2\\build_win32.bat",
+    "SHA256": "E8F64CFB1F4FF1A2A3C2201EB6B36EC264C2158ECB34B8344D342645A8917E8B"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_sdlrenderer2\\example_sdl2_sdlrenderer2.vcxproj",
+    "SHA256": "B1104B89B042E7392806C35C9B4605BFF8E9FF515DE60EC02D643F8EE6FF7517"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_sdlrenderer2\\example_sdl2_sdlrenderer2.vcxproj.filters",
+    "SHA256": "A3FFD260F30290B00E57766C33A1831A7D1BE61DF6E60BE4F0A30DF07D9FB54A"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_sdlrenderer2\\main.cpp",
+    "SHA256": "14445DA83AB97CA1E4B49F86AE98DCCFC1781FD2D061EE62B0059A2ED78EFE87"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_sdlrenderer2\\Makefile",
+    "SHA256": "FDA4AB50E7AECEF013532425C2FC74BC6C708869DBA25D905FC4E786E4F5B702"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_sdlrenderer2\\README.md",
+    "SHA256": "FAB2870F83F6EBD356693FC4ECC99790253AFC79BD3D59A2B0A643AA6F76AE2A"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_vulkan\\build_win32.bat",
+    "SHA256": "AF75B92FEEAB966149304C2D1FC3FEC7B79EB76AA037BEB0BE970ED7392297E2"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_vulkan\\build_win64.bat",
+    "SHA256": "65260541BD7AB82178546538E47913B3AF2277CED660F9FB886999385C1891EB"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_vulkan\\example_sdl2_vulkan.vcxproj",
+    "SHA256": "ACF62881976A28D87C6DC130661EC9BB6BB287DD0C9463116086260FC56248B9"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_vulkan\\example_sdl2_vulkan.vcxproj.filters",
+    "SHA256": "7D3A7F85A22B971E05DB80F121C3F696C773E7E6232C69E067C0CCE3602C7E47"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_vulkan\\main.cpp",
+    "SHA256": "B01231435B3DF0E4C23B576F8E03D6C90D3D0DD7E5DD2B9E34B5880C77C65AFD"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_vulkan\\Makefile",
+    "SHA256": "82D5D318997DECDD161F362D78E2B4F1F829D914C3CC5BE02564E77DD95542E8"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_wgpu\\CMakeLists.txt",
+    "SHA256": "B89D0BFDC6122FEFE00F26C0E0B732CD414895E2B0326BC410C8A4AB208D972C"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_wgpu\\main.cpp",
+    "SHA256": "92B5E18CAC2EA848787F3390D612D04D83A1855644845BA0F8DA0EEFCA6392AC"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_wgpu\\Makefile.emscripten",
+    "SHA256": "C7C9BDE7709DE2C5EF53C3B1835477EA8FCE0B15DE36FFC94ABAA66A705C3971"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl2_wgpu\\README.md",
+    "SHA256": "5B5D6267B6913CD2EC394419F8C0F819E80059E2F8FC8CC055115F0D6679F11E"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_directx11\\build_win32.bat",
+    "SHA256": "DA71A3B8CBEE80A590407E8D91085F1EC72C9B9F11345B88E63F8C10F9EF6585"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_directx11\\example_sdl3_directx11.vcxproj",
+    "SHA256": "4CD5F3DBA4326B95A0017DE262367B1857A742D8468BD3DCFF6E9B2C5B9CF6D4"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_directx11\\example_sdl3_directx11.vcxproj.filters",
+    "SHA256": "F17D071D2205BDD3E908DB693BB5AE3AFDC9230D6D5BB78384807C7BE1046D8B"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_directx11\\main.cpp",
+    "SHA256": "F377BB419230F0A5B76617E39F033D28B06CFB12F0012F532F2A94631428735F"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_metal\\main.mm",
+    "SHA256": "27F09E59F06FD0F809B5CDD35D8E7DFE61566F8BDCAC07B05EC206609239DA95"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_metal\\Makefile",
+    "SHA256": "A57CC456CBB39D32AECF42898956D3EA93E89EAF5AB6FC939380B12594271817"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_opengl3\\build_win32.bat",
+    "SHA256": "B3E5AFA25A098C92051E673FE20592B9B77B38167D1CCDBB9A673D1F7F13690F"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_opengl3\\build_win64.bat",
+    "SHA256": "E769ECF4D6CE66FD128A24FD19C58C874AF5FAA924F5230F7F94EDE9DFC1D00E"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_opengl3\\example_sdl3_opengl3.vcxproj",
+    "SHA256": "6EC1ADA23AAD38509E26C8962A5A3110438ABE8E6427E33B0859C373AD20C485"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_opengl3\\example_sdl3_opengl3.vcxproj.filters",
+    "SHA256": "7CA0C1218F9F853C2669C5701A27DDDA8EB0C693C967579E844AD561FA3B9DDA"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_opengl3\\main.cpp",
+    "SHA256": "D5758C51493A1266B71FC1730E1714BAA7E96E512B54AA97DE5C2E5E67B2B51F"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_opengl3\\Makefile",
+    "SHA256": "173D61D5846FE06E1FBF445AB3B4ECA7406EDAB2100E2B3441B3B78A2ADB7C98"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_opengl3\\Makefile.emscripten",
+    "SHA256": "C968AC174245526A4A9C76C12C1065892F9377782E51FDF6B2E269A0E8616F4C"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_opengl3\\README.md",
+    "SHA256": "01B5B33DA46E26CADE64513F11D88C1ADDDC251AB18ADB14062D489B5040F43C"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_sdlgpu3\\build_win64.bat",
+    "SHA256": "561389A5067AEA05B2292028ACBDE1E6B493132C3AA721A3A3E9DBDEEFA4A33D"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_sdlgpu3\\example_sdl3_sdlgpu3.vcxproj",
+    "SHA256": "D105167D6816D5251402625BB24D86113882B7BC0F0BE503441A8765E1F1EDFB"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_sdlgpu3\\example_sdl3_sdlgpu3.vcxproj.filters",
+    "SHA256": "7B1597C93D63F7A172FA47B8671BDE42B26049FB4AEFF87201FDEAD0725B2A05"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_sdlgpu3\\main.cpp",
+    "SHA256": "CDAA1122FFE0C85625B9C9B38238156C0A71E423ED2FA46F4019655B83EF040B"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_sdlgpu3\\Makefile",
+    "SHA256": "70E1670FBAD9C45C4470C2F9C31CF8DB51D010D39C1D1D1339EF4D94DCE31B7C"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_sdlrenderer3\\build_win32.bat",
+    "SHA256": "0287659726B7E77F37C2E30C509DB7D6C778385127DA4BBD9B74ED11DA166F01"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_sdlrenderer3\\example_sdl3_sdlrenderer3.vcxproj",
+    "SHA256": "79AE87D477E9E691A20D0A3B6FDD69661AF33ABAE6929C0A98E4BF601A3C188B"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_sdlrenderer3\\example_sdl3_sdlrenderer3.vcxproj.filters",
+    "SHA256": "E0C7991D64B7C0BB4EEB38E87B22664FCEC46471DD00EF0908B704D6FBDF62B2"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_sdlrenderer3\\main.cpp",
+    "SHA256": "7E524FB19383F7F95F927DAE93F0EF8E5CA68BB9842F5B68CC62BC764A683874"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_sdlrenderer3\\Makefile",
+    "SHA256": "2CAC71C9C4BDC025CB3ABD76CE231D85DB2B4A7AC88CB152E5D3AAF8DB5FBBEE"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_vulkan\\build_win32.bat",
+    "SHA256": "F5DE59230F5946B0A0C03C08BFCEC9CBEBC681C69C6E81D6281DA77DCEA33F73"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_vulkan\\build_win64.bat",
+    "SHA256": "29693238FE0D4DACAE0C2F65C0711DB8D56BC8AEB110314E9AA0DA72F984BDF7"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_vulkan\\example_sdl3_vulkan.vcxproj",
+    "SHA256": "42C5EE23FF3E1AD22950C7E7AFC61CF2C43058FDC2F5FD1A799C0436690561EF"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_vulkan\\example_sdl3_vulkan.vcxproj.filters",
+    "SHA256": "E01F105A24675B07C6A48154BE1B5A111898D31DCD1BFE5DF8A28F8B0B3F3078"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_vulkan\\main.cpp",
+    "SHA256": "241DD73075976DB2BC8F260206769B469072A84C1694E0C46290DF21E6184204"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_vulkan\\Makefile",
+    "SHA256": "A55F2602C7506CF944DBD1C12594AF6ABB0447A438A4D5FB05FEBA32EDBC6F27"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_wgpu\\CMakeLists.txt",
+    "SHA256": "5FC0959A4EDEDE800B8EB6505C58700D8DFDE4D9BD54DFF60427D5C9B911FDA5"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_wgpu\\main.cpp",
+    "SHA256": "4FA336D9AB61822B3A0C49EECD1BBA6587984112113C0A7BF5F3BCCCCC69CAD8"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_wgpu\\Makefile.emscripten",
+    "SHA256": "EB5CC6A1E6D168174F98F2DEA880A35C5F48CAE6A2ED1E7368A41896E981B5E3"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_sdl3_wgpu\\README.md",
+    "SHA256": "D066474D92072F8B9586F0302F8BB6A8BE927E79799B3338FD60D046CBDE30A2"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_directx10\\build_win32.bat",
+    "SHA256": "12BE7FDBF4512DDAF450BAC20644CC4DEC0D8471A30C5111B5A22AAECB746B2F"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_directx10\\example_win32_directx10.vcxproj",
+    "SHA256": "92EE5CAE248008B670D36491FC9EA8B7E12190AECC9E953E71E6359788A6E9AF"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_directx10\\example_win32_directx10.vcxproj.filters",
+    "SHA256": "FF918661428A1CC39D54889A0424CE0984050F0FF32AAF76B228624A06DF614D"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_directx10\\main.cpp",
+    "SHA256": "66073FBA8920A1419A84E10D719DB56BFBD027F5D8AAD2D4986AC3F19DF009C2"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_directx11\\build_win32.bat",
+    "SHA256": "6BBA7521AA4BF994277D92A3B42B05E50A4498EB043B4F684D5B211949FA3F18"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_directx11\\example_win32_directx11.vcxproj",
+    "SHA256": "DAB3BE95054790958E8ED63E4D0E59CD9D6FF9523D0413383737B0378E36D699"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_directx11\\example_win32_directx11.vcxproj.filters",
+    "SHA256": "95DA12FDD393ABF7E1BB34CEAF04B0B54B20A9E6489973DF8AA44CF376AAD151"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_directx11\\main.cpp",
+    "SHA256": "5BCBF674E11D01328E2576A0F257E8418CC91D440E6BFBE63A0DA193937D67AA"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_directx12\\build_win32.bat",
+    "SHA256": "E0E2341EE033695D66AEA5AB298B744CC417A098292F1FB3C5C1525C744868A6"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_directx12\\example_win32_directx12.vcxproj",
+    "SHA256": "DF95E11B60AB54ACCA48999F8A888E0358AE428C810232129CE4CD939BB18B41"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_directx12\\example_win32_directx12.vcxproj.filters",
+    "SHA256": "680111BB638B973057BA73695B5DFE78FE8C4802F92555F29AD2FBD38C2CABF3"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_directx12\\main.cpp",
+    "SHA256": "F47A485F837AF078F4666E69F7DC2865FDAE41E370EB1DC3EE86B53EB4310666"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_directx9\\build_win32.bat",
+    "SHA256": "787C7FAD7DF754783DB6DCE341F80AB92A337A4A64AA924BA8B815D21DB59481"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_directx9\\example_win32_directx9.vcxproj",
+    "SHA256": "314F9A4441CF230028987F9A073B82622B4EC207FC8CDD124C4C817152AC02AD"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_directx9\\example_win32_directx9.vcxproj.filters",
+    "SHA256": "35F5054588F6CAE26EC2BC1D0720892008E12A4CD5E869B20E254C7142BA76FC"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_directx9\\main.cpp",
+    "SHA256": "1AB231322DB5EF8D1A1D6416A2E0CBA9EBAF35FBEA2F962E04424CC3FF2D7C60"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_opengl3\\build_mingw.bat",
+    "SHA256": "F88CA395CBCB43F392F8C630E24DC84678B00A3C641FADE0740A970DB6B277E0"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_opengl3\\build_win32.bat",
+    "SHA256": "6AE989CF0E37A4F75FB6FF39320478BC63F777E58EFB815B736164CECC9E6284"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_opengl3\\example_win32_opengl3.vcxproj",
+    "SHA256": "1553465C90E6B401F10E7296AE5D0BE7CD3A1E1DC4DBDDB1E527DB041B0A05A0"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_opengl3\\example_win32_opengl3.vcxproj.filters",
+    "SHA256": "C2C972570BDCB114C1ADB6B5D018608E445A069264B97519D57D2CA7ABA8EB0A"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_opengl3\\main.cpp",
+    "SHA256": "51FCD86A33B44F2FD82867C5D596AE28D3A0AC6BD591BD31BF562911A65AC10F"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_vulkan\\build_win32.bat",
+    "SHA256": "1052B438D46764CAD78DFC13DD6C3E2BD3E368D63A2CD96AB66EC268E521ED47"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_vulkan\\build_win64.bat",
+    "SHA256": "70A98BE5A6A4C2BA346439CBE2AE0DF495354A34DF2DF30FFAC74D4DA60A8401"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_vulkan\\example_win32_vulkan.vcxproj",
+    "SHA256": "CC69851DF80A473715F255A3DD21CDB947CD3884B64F4ED43A970D880B7AC8B0"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_vulkan\\example_win32_vulkan.vcxproj.filters",
+    "SHA256": "797AB8CF76E61140E8DB7EE5FE25AD7F4DC838D6425686D18ED88C8AAB24100D"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\example_win32_vulkan\\main.cpp",
+    "SHA256": "7A0CF1890015DF516348A411EA9A9BB61B2F7950A4D41842CC04F1B76904F6C2"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\libs\\emscripten\\emscripten_mainloop_stub.h",
+    "SHA256": "863A82765DC0D104FBEDC945C7D7C275F995E9AE70D8853E9323C4B9F61A5DB9"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\libs\\emscripten\\shell_minimal.html",
+    "SHA256": "5D864FDFD0F5C2CC46FAF513200E72863FD1EE1FCF04E7554ED040F28788BED8"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\libs\\glfw\\COPYING.txt",
+    "SHA256": "3D63403FEF9242CBFD31CE987464FFFDC88A874685236C187B4A110978B31654"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\libs\\glfw\\include\\GLFW\\glfw3.h",
+    "SHA256": "40D11B091D54AA86B5070E102AF39E6292E9AD6EBA23D4527D2B134B61C08248"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\libs\\glfw\\include\\GLFW\\glfw3native.h",
+    "SHA256": "31B0171EDF8B055C8995957E8B27C67B6D45C480BE7BAE92BE4BA2391B5DDC90"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\libs\\glfw\\lib-vc2010-32\\glfw3.lib",
+    "SHA256": "2E00D21CFB87D1A390D8E31237B1CC7DD6AEB00FF7EAADE82640412496259B9C"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\libs\\glfw\\lib-vc2010-64\\glfw3.lib",
+    "SHA256": "AA4F5523A503E1C2AEE397F9C252CB78D1C5C85BE39E325D5723BD8969152E7B"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\libs\\usynergy\\README.txt",
+    "SHA256": "51FF4469B57D04AA9DA86332E95A02D2C6EEC14578EE4D5F46EA618A2B9D3408"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\libs\\usynergy\\uSynergy.c",
+    "SHA256": "5F3BC74D51E0DF49153AE5E3733D9A6D31290CE72E028753956A9C269EB54797"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\examples\\libs\\usynergy\\uSynergy.h",
+    "SHA256": "1759DC5C76F8E03EDA413C42DED1E63597959127D53DA9C2516538CEC02B24D1"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\misc\\README.txt",
+    "SHA256": "3EE66B60C9CF4C31B9B626710234DFD498C2D3C46EA6B3ACD32DEAAC3D9F43C1"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\misc\\cpp\\imgui_stdlib.cpp",
+    "SHA256": "04B990C9D26D4041FA64E582FA007D6CCC8628DEF33FD5AF96D15295B5336D4F"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\misc\\cpp\\imgui_stdlib.h",
+    "SHA256": "0712B39030B15B08BE89D6C4F63A203AF03F4E0F31FECD43F686A5CA69573C99"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\misc\\cpp\\README.txt",
+    "SHA256": "38E5966CC77BB2A7D02D5C4410FAD08B55EEF98D1EEF1AB4EAC909351394A658"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\misc\\debuggers\\imgui_lldb.py",
+    "SHA256": "42A05E8C5348CCD2998485FD5A5347697C806BDF35E12178CDF2F26029AFA495"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\misc\\debuggers\\imgui.gdb",
+    "SHA256": "981AE4FF74EEC41DF38F66115813E9C4E4A8829D3A7CC801FE4B697F2E7B9C95"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\misc\\debuggers\\imgui.natstepfilter",
+    "SHA256": "B8F41DFA8D91CBC6CA9584B36EF0C2412439B2FCB92EF33524C10838BB760EF3"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\misc\\debuggers\\imgui.natvis",
+    "SHA256": "D19E014EA1FB710F558A61A3E927B7FE99235F1E3F0AC3747FAF08B1144B8C29"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\misc\\debuggers\\README.txt",
+    "SHA256": "F366D7F808A699EE0A3A4CA968AFEAA3DEE1650FE01621A7B090DBEAB457C58B"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\misc\\fonts\\binary_to_compressed_c.cpp",
+    "SHA256": "36B66DAC1D9B55B3E4462B033875969C40A63BA6C94F9C5C228B60F78D5BEC72"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\misc\\fonts\\Cousine-Regular.ttf",
+    "SHA256": "0D5D5EEB6A342432BD63A3C0D16E8470160E019933EE5AF3E159D06D665DACCE"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\misc\\fonts\\DroidSans.ttf",
+    "SHA256": "4E2371BC0E4CF6983342E150412F140DA79D674C9BE0B56458401F581072ECD3"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\misc\\fonts\\Karla-Regular.ttf",
+    "SHA256": "907C55A993E35B3AE4F3B8B8C28367F4B6D431DF8E9CA6FBD382D8317DD3684E"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\misc\\fonts\\ProggyClean.ttf",
+    "SHA256": "527D2A443CE051F93F7E77B855609722B8CB220A9F104B4AA037BE5C90B71324"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\misc\\fonts\\ProggyTiny.ttf",
+    "SHA256": "79BF8D3896BA83AE2F9C4FA214DCE8FC689EAE47950474947A4CC5C6E14A9BFC"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\misc\\fonts\\Roboto-Medium.ttf",
+    "SHA256": "8559132C89AD51D8A2BA5B171887A44A7BA93776E205F553573DE228E64B45F8"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\misc\\freetype\\imgui_freetype.cpp",
+    "SHA256": "62015AD806F79BCB6EA734BF6B891439DE05A1057BCA7871B5C3CCF74DFEE38D"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\misc\\freetype\\imgui_freetype.h",
+    "SHA256": "C926AE84FB01D38839A7D19ED5B44E93253BF603E39F73E31A3B410A24EB3E4F"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\misc\\freetype\\README.md",
+    "SHA256": "D8DA6C4777AA9F01ED1A3C42FC09FB37E795BF62760C4C112465C8D4B92C469E"
+  },
+  {
+    "Path": "deps\\reshade\\deps\\imgui\\misc\\single_file\\imgui_single_file.h",
+    "SHA256": "9C3231E9DD71FBAB4B161A613AB419F08C8B335CA9B76168752055AA0D8C1E97"
+  },
+  {
+    "Path": "deps\\reshade\\include\\reshade_api_device.hpp",
+    "SHA256": "87B98725841048689D3FF884305C8BDED2F1EE1771B8C62FC473E9AD0139F739"
+  },
+  {
+    "Path": "deps\\reshade\\include\\reshade_api_format.hpp",
+    "SHA256": "D5FCDF598A9ADBD18DB6CCD0D15133D08C4DFA4909EC8335F76EDAF735AE39CF"
+  },
+  {
+    "Path": "deps\\reshade\\include\\reshade_api_pipeline.hpp",
+    "SHA256": "B32E15ACDB09B211F3F3D0DBB4CF96C499BB2095D9F8343DEDC064D89EE2DC66"
+  },
+  {
+    "Path": "deps\\reshade\\include\\reshade_api_resource.hpp",
+    "SHA256": "C51990D57D3E2F81818A91BB612EF4A9D3667B0A10D260EF723D6E124FE8610C"
+  },
+  {
+    "Path": "deps\\reshade\\include\\reshade_api.hpp",
+    "SHA256": "DB19051EF285A7A1A3721F2711DE973BE8805D4CA39A38FBADADE7FD22100A17"
+  },
+  {
+    "Path": "deps\\reshade\\include\\reshade_events.hpp",
+    "SHA256": "907B6FBCDEBCD0B5C40097BB2830A897C20E5BDB7A5E34298E132DEBDB790CB9"
+  },
+  {
+    "Path": "deps\\reshade\\include\\reshade_overlay.hpp",
+    "SHA256": "771F0CDDE2DACD21CFE04664E1AAADDAE43114A1ABB51BB63AF5645A88C217A6"
+  },
+  {
+    "Path": "deps\\reshade\\include\\reshade.hpp",
+    "SHA256": "FBE822C05D028EFD5395D95F9AB3CC62EEE490968B0C05A361F08846CB981576"
+  },
+  {
+    "Path": "deps\\streamline\\sl_appidentity.h",
+    "SHA256": "1337385AC9867D66FA6BEB34C750E79AAF25A74A156A47E83F24937299DADE87"
+  },
+  {
+    "Path": "deps\\streamline\\sl_consts.h",
+    "SHA256": "17DE74AFDA2CB96204FF380464BED926F660D92015FE0304DFF4E329509C88B9"
+  },
+  {
+    "Path": "deps\\streamline\\sl_core_api.h",
+    "SHA256": "328DC3A2C1DEE579C200CA97E2D5B1EC38C893BE4BA2745EF5AD506AF7172E81"
+  },
+  {
+    "Path": "deps\\streamline\\sl_core_types.h",
+    "SHA256": "F420CB052CE14489FC9FA0D933C3ED81A010DEB01FA13B1AA8D45DA1C5BA3234"
+  },
+  {
+    "Path": "deps\\streamline\\sl_deepdvc.h",
+    "SHA256": "C6086FFE6B1E00588368FDB91E4AB9DD9617624E0E4344CD503A2CA73E46D1A4"
+  },
+  {
+    "Path": "deps\\streamline\\sl_device_wrappers.h",
+    "SHA256": "AF7741305B1A468C3A83EFAA2005ECD53D2FFD7AADB8EC6868C9DCB4A8A8E3A1"
+  },
+  {
+    "Path": "deps\\streamline\\sl_directsr.h",
+    "SHA256": "65D4E68B2A0F0425EA4D381379172197B81352A50A5E399A8E8F51953E765C71"
+  },
+  {
+    "Path": "deps\\streamline\\sl_dlss_d.h",
+    "SHA256": "6E51CF9815301C597D0657970A668147E34A20DB5A76D0AF254EC11248F5C4FE"
+  },
+  {
+    "Path": "deps\\streamline\\sl_dlss_g.h",
+    "SHA256": "1FC18CBE004E280DF1F787276D08A1B28B8A8C4C65856FBAA659F56DFF6A915D"
+  },
+  {
+    "Path": "deps\\streamline\\sl_dlss.h",
+    "SHA256": "D2C8C61FA71794C8BA424CEBCE5B3079EBFAB8E47ED98B4B00CF8B257ECFD6B5"
+  },
+  {
+    "Path": "deps\\streamline\\sl_helpers_vk.h",
+    "SHA256": "82604567D239D00AC0AC2270CEC744F6F11266E1D9D5187A95D4954F76D8C41C"
+  },
+  {
+    "Path": "deps\\streamline\\sl_helpers.h",
+    "SHA256": "48629EDBF25DFDB6444C91235FC278F0F9A5878243FAE83204C5906CE9EACD8A"
+  },
+  {
+    "Path": "deps\\streamline\\sl_hooks.h",
+    "SHA256": "CFEFF70A52E1CC012CF4C955A15CC9D0B290F7E084DCB3C0168A9AF06FF8F122"
+  },
+  {
+    "Path": "deps\\streamline\\sl_matrix_helpers.h",
+    "SHA256": "A65758D85ABBA1E12845D266D7D5E36AAEFA952383CDF093F3143CD6D8653341"
+  },
+  {
+    "Path": "deps\\streamline\\sl_nis.h",
+    "SHA256": "F45BE3CF149200E1EAE081CD144C95726A7A290A89822A5D52B9F538E52484AA"
+  },
+  {
+    "Path": "deps\\streamline\\sl_nvperf.h",
+    "SHA256": "025F9F1C8482E75A90F8B8EFCCDC9CFC53A9FC8B05BA3ACC6C3783708B66BD69"
+  },
+  {
+    "Path": "deps\\streamline\\sl_pcl.h",
+    "SHA256": "F43C5135FC8D5349CCD345E424F8CF1F61953A9F17E9897204B0741A3AB7B0FB"
+  },
+  {
+    "Path": "deps\\streamline\\sl_reflex.h",
+    "SHA256": "3B623A1189E04A686384D224A58C4AD9974C4E6E3204077676F6EC529475164C"
+  },
+  {
+    "Path": "deps\\streamline\\sl_result.h",
+    "SHA256": "2A0F6C12863BDC00B38910A5EC85D1F083C5671EE817A920AFE626AC2A9100F7"
+  },
+  {
+    "Path": "deps\\streamline\\sl_security.h",
+    "SHA256": "A36B1C20394402BEE7CE738089A5A1305FF6E9DD9DD517566154CE834F7C32B4"
+  },
+  {
+    "Path": "deps\\streamline\\sl_struct.h",
+    "SHA256": "28DEDA67EA1A74371DD4F33FF4842B7DB03B2DB007001DA6DB06F6982297928D"
+  },
+  {
+    "Path": "deps\\streamline\\sl_template.h",
+    "SHA256": "AF2D4A61361F2603872DCB6EDC86CC9E18912762A5C03E6A782FF39A8C3B871B"
+  },
+  {
+    "Path": "deps\\streamline\\sl_version.h",
+    "SHA256": "48E9CB86F0FF6711304BDF3F7150F46466878BBEFC21F648773267BC6A326285"
+  },
+  {
+    "Path": "deps\\streamline\\sl.h",
+    "SHA256": "E1E81A7428D15B30DB37587E9469BD68A56D630D820A4ACCEC0AEE3B17E157DD"
+  }
+]
