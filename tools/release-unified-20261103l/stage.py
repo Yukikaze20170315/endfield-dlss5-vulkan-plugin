@@ -41,6 +41,10 @@ SOURCE_EXCLUDE = re.compile(
     r'|^src/unified-20261011/bridge/src/[^/]+\.(obj|lib|exp|res|addon64)$'
     r'|\.(pdb|ilk|iobj|ipdb|pyc)$', re.I)
 HAND_WRITTEN = ('README.md', 'BUILDING.md', '.gitattributes')
+# The author's own Chinese guide, published byte for byte (not translated).
+ZH_GUIDE = Path(r'C:\Users\Administrator\Desktop\暂存文件\DLSS5相关\内测版\第二版\使用教程.txt')
+ZH_GUIDE_SHA256 = 'f2b30597c083094226420642eb8c736f70b65018de02d789764ae7d60abf6c5c'
+ZH_GUIDE_NAME = '中文使用教程.txt'
 
 
 def sha256(path):
@@ -73,6 +77,8 @@ def verify():
         raise SystemExit('candidate zip hash changed')
     if sha256(USAGE) != USAGE_SHA256:
         raise SystemExit('usage document differs from the packaged copy')
+    if sha256(ZH_GUIDE) != ZH_GUIDE_SHA256:
+        raise SystemExit('the Chinese guide changed; review it and update ZH_GUIDE_SHA256')
     print(f'verify: {len(manifest["files"])} manifest files match, candidate zip and usage document match')
 
 
@@ -91,6 +97,7 @@ def stage_repo():
         shutil.copy2(p, t); count += 1
     for name in HAND_WRITTEN:
         shutil.copy2(OUT / name, REPO / name); count += 1
+    shutil.copy2(ZH_GUIDE, REPO / ZH_GUIDE_NAME); count += 1
     docs = REPO / 'docs'
     (docs / 'history').mkdir(parents=True)
     shutil.copy2(USAGE, docs / 'USAGE-AND-RECOVERY.md'); count += 1

@@ -4,6 +4,10 @@ Release date: 2026-11-05. This release replaces `unified-20261015q` (2026-10-19)
 
 发布日期：2026-11-05。本次发布取代 2026-10-19 的 `unified-20261015q`。仓库已由 `dlss5-vulkan-fg-relay` 改名为 `endfield-dlss5-vulkan-plugin`，旧链接会被 GitHub 自动跳转。上一版 README 保留在 [docs/history/README-unified-20261015q.md](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/docs/history/README-unified-20261015q.md)。
 
+A Chinese install guide written by the author is also available: [中文使用教程.txt](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B.txt).
+
+中文用户可直接阅读作者手写的中文使用教程：[中文使用教程.txt](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B.txt)。
+
 ## In short / 简要说明
 
 **What this is.** A ready-to-use package that adds NVIDIA's DLSS 5 neural rendering ("NR", an AI filter that redraws the game's picture with more detailed lighting and materials) to Arknights: Endfield running on Vulkan, together with the game's own DLSS Frame Generation. NVIDIA GeForce RTX 20, 30, 40 and 50 series cards use the same files. You copy one folder into the game folder, change a few settings once, and restart the game.
@@ -49,6 +53,8 @@ Release date: 2026-11-05. This release replaces `unified-20261015q` (2026-10-19)
 This guide assumes that you have never installed ReShade or any add-on for this game. If you already use `unified-20261015q`, read "Updating from unified-20261015q" first.
 
 本教程假设你从未给这个游戏安装过 ReShade 或任何插件。如果你正在用 `unified-20261015q`，请先看“从 unified-20261015q 升级”一节。
+
+作者手写的中文版教程（内容更详细，含更多注意事项）：[中文使用教程.txt](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B.txt)。
 
 ## Personal statement from the author / 作者的个人声明
 
@@ -501,6 +507,7 @@ New log coverage, all bounded: the bridge's `[vram-residency]` lines (process lo
 | --- | --- |
 | `README.md` | this document / 本文档 |
 | `BUILDING.md` | requirements, build, offline tests, packaging / 构建条件、构建、离线测试、打包 |
+| `中文使用教程.txt` | the author's own Chinese install guide, not translated / 作者手写的中文使用教程（未翻译） |
 | `src/unified-20261011/` | production source of the bridge, Generic, MFG Unlock and the shared headers / Bridge、Generic、MFG Unlock 与共享头文件的生产源码 |
 | `tools/unified-20261011/` | build, test and packaging scripts, uninstaller, restore helper source / 构建、测试、打包脚本，卸载工具，恢复助手源码 |
 | `upstream/NVIDIA-nvapi-87dca62/` | NVAPI SDK |
