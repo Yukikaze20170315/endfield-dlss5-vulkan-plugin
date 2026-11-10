@@ -1,16 +1,16 @@
-# unified-20261103l: source and how to rebuild
+# unified-20261107m: source and how to rebuild
 
-This tree (also published as `unified-20261103l-source.zip`) holds the complete source from which the three add-ons in `unified-20261103l-candidate.zip` were built, the build, test and packaging scripts, and the NVAPI SDK that the bridge links. The folder layout is the one the scripts expect; keep it.
+This tree (also published as `unified-20261107m-source.zip`) holds the complete source from which the three add-ons in `unified-20261107m-candidate.zip` were built, the build, test and packaging scripts, and the NVAPI SDK that the bridge links. The folder layout is the one the scripts expect; keep it.
 
 | Folder | Content |
 | --- | --- |
 | `src/unified-20261011/bridge/` | `dlss5-bridge.addon64`, version `1.4.13-pre8-unified2d-20261101`. Based on [NIGos/dlss5-bridge](https://github.com/NIGos/dlss5-bridge) (MIT, see `bridge/LICENSE`). |
-| `src/unified-20261011/generic/` | `renodx-dlss5.addon64` (RenoDX DLSS 5 Generic), version `v8.5.0-rc10-unified2l-20261103`. `src/` is the part of a RenoDX checkout that the add-on needs; `generated/` holds the compiled shaders and the version resource. RenoDX is MIT licensed (`generic/src/addons/dlss5/LICENSE`). |
+| `src/unified-20261011/generic/` | `renodx-dlss5.addon64` (RenoDX DLSS 5 Generic), version `v8.5.0-rc10-unified2l-20261103`, build `unified2m-fix2-20261107`. The version string was kept from `unified-20261103l` so that the bridge's compatibility check accepts the add-on; the build is identified by `build unified2m-fix2-20261107` at the end of the `Vulkan pre-present NR ready` line in `ReShade.log`. `src/` is the part of a RenoDX checkout that the add-on needs; `generated/` holds the compiled shaders and the version resource. RenoDX is MIT licensed (`generic/src/addons/dlss5/LICENSE`). |
 | `src/unified-20261011/mfg/` | `renodx-mfgunlock.addon64` (MFG Unlock), version `0.11+unified2j-20261102`. Based on [nefh/MFGAmpereUnlock-RenoDx](https://github.com/nefh/MFGAmpereUnlock-RenoDx) tag `0.11` (MIT, see `mfg/LICENSE`). `deps/` holds the headers and the static Detours library it builds against, except the NGX headers (see Requirements). |
 | `src/unified-20261011/common/` | Headers shared by the three add-ons (deployment state, driver-profile handling, Windows VRAM budget, logging, panel language, hook mode, payload table). |
 | `tools/unified-20261011/` | Build script, offline test fixtures, packaging scripts of every intermediate build, the external uninstaller (`DLSS5-Clean-Recovery.ps1`, `DLSS5-Recovery.cmd`) and the restore-helper source (`restore-driver.cpp`). |
 | `upstream/NVIDIA-nvapi-87dca62/` | NVAPI SDK (MIT), linked by the bridge and the restore helper. |
-| `tools/release-unified-20261103l/` | The script that staged this repository and the release assets, and the secret scan run on them. |
+| `tools/release-unified-20261107m/` | The script that staged this repository and the release assets, and the secret scan run on them. |
 
 ## Requirements
 
@@ -26,12 +26,12 @@ From the repository root:
 ```bat
 set GDEPS=<RenoDX checkout>\external
 set NRSDK=<DLSS SDK>\include
-tools\unified-20261011\build-unified1s.cmd all unified2l
+tools\unified-20261011\build-unified1s.cmd all unified2m
 ```
 
 The first argument is `bridge`, `mfg`, `generic`, `tests` or `all`; the second chooses the output folder `builds\unified-20261011\<name>\` (default `unified1s`; the name is historical, the script builds whatever is in the tree). The bridge and MFG Unlock are built with `/W4 /WX`. The Generic link prints the warning LNK4229 about `/DELAYLOAD:winhttp.dll`; it is present in every build of this series and does not stop the build. The `mfg` step also runs the policy fixture (326 checks) and the start-up policy check (10 checks). The `tests` step runs the event-log fixture (67), the Vulkan GPU-name unlock fixture (15) and a fixture that loads the built bridge in a temporary game folder (48).
 
-Rebuilt DLLs do not have the same SHA-256 as the shipped ones, because the PE time stamp changes with every build. The shipped bridge and MFG Unlock were built from this same source in earlier builds of the series (unified2d and unified2j); their source has not changed since, which is why their version strings differ from Generic's.
+Rebuilt DLLs do not have the same SHA-256 as the shipped ones, because the PE time stamp changes with every build. The shipped bridge and MFG Unlock were built from this same source in earlier builds of the series (unified2d and unified2j); their source has not changed since, which is why their version strings differ from Generic's. The shipped Generic was built on 2026-11-07 with the `generic` step alone.
 
 Use `build-unified1s.cmd`, not `src/unified-20261011/mfg/build.cmd` or `src/unified-20261011/generic/build.cmd`: those are left over from earlier experiments.
 
@@ -55,11 +55,11 @@ None of these fixtures loads the game, changes the real NVIDIA driver profile, t
 
 ## Packaging
 
-Each intermediate package was produced by a `package-unified*.py` script that takes the previous package, replaces only the files that changed, checks every input hash and refuses to overwrite an existing output. `package-unified2l.py` produced `unified-20261103l-candidate` from the unified2k package (new Generic and usage document). `make-payload.py` generates `common/payload.hpp` (the runtime file table compiled into the bridge) from the runtime files. To check an installed copy, compare its files with `SHA256SUMS.txt` in the package.
+Each intermediate package was produced by a `package-unified*.py` script that takes the previous package, replaces only the files that changed, checks every input hash and refuses to overwrite an existing output. `package-unified2l.py` produced `unified-20261103l-candidate` from the unified2k package (new Generic and usage document), and `package-unified2m.py` produced `unified-20261107m-candidate` from that package in the same way (new Generic and usage document). `make-payload.py` generates `common/payload.hpp` (the runtime file table compiled into the bridge) from the runtime files. To check an installed copy, compare its files with `SHA256SUMS.txt` in the package.
 
 ## Left out
 
 - Build outputs, git metadata and Python caches.
 - `src/unified-20261011/mfg/deps/ngx/` (NVIDIA NGX SDK headers; see Requirements).
 - `generic/src/addons/dlss5/contrib/dlss5-bridge-vulkan-fg-relay/`: a copy of earlier release material that the build does not use; it is in the git history of this repository.
-- The runtime DLLs (`nvngx_*.dll`, `sl.*.dll`); they are in `unified-20261103l-candidate.zip`.
+- The runtime DLLs (`nvngx_*.dll`, `sl.*.dll`); they are in `unified-20261107m-candidate.zip`.

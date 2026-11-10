@@ -1,10 +1,36 @@
-# DLSS5 unified2l 候选：使用与恢复 / Usage and recovery
+# DLSS5 unified2m 候选：使用与恢复 / Usage and recovery
 
-本套件用于《明日方舟：终末地》Vulkan、支持插件的 ReShade 6，以及 NVIDIA RTX 显卡。RTX 20、30、40、50 系列使用同一套 Bridge、Generic NR、MFG Unlock 和运行库文件，无需按显卡选择部署包。unified2l 是 2026-11-03 的候选版本（三个插件的界面精简、新的首装默认值、新的截图方式；游戏外恢复工具只保留完全卸载），已通过编译和离线自动化测试，尚未完成游戏内、跨显卡验收。
+本套件用于《明日方舟：终末地》Vulkan、支持插件的 ReShade 6，以及 NVIDIA RTX 显卡。RTX 20、30、40、50 系列使用同一套 Bridge、Generic NR、MFG Unlock 和运行库文件，无需按显卡选择部署包。unified2m 是 2026-11-07 的候选版本，修复了 Generic 中呈现阶段 NR 的问题。它已通过编译、离线自动化测试和独立代码审查，并在一台 RTX 5090（驱动 621.14）上做了游戏内测试；尚未在其他显卡、Windows 版本或驱动上验收。
 
-This package targets Arknights: Endfield with Vulkan, an add-on capable ReShade 6 installation, and NVIDIA RTX graphics. RTX 20, 30, 40 and 50 series use the same Bridge, Generic NR, MFG Unlock and runtime files; users do not select a package by GPU generation. Unified2l is a candidate from 2026-11-03 (simplified panels in all three add-ons, new first-install defaults and a new screenshot method; the external recovery tool performs only a full uninstall). It passed the build and offline automated tests and has not been accepted in game or across GPUs.
+This package targets Arknights: Endfield with Vulkan, an add-on capable ReShade 6 installation, and NVIDIA RTX graphics. RTX 20, 30, 40 and 50 series use the same Bridge, Generic NR, MFG Unlock and runtime files; users do not select a package by GPU generation. Unified2m is a candidate from 2026-11-07 that fixes Present-stage NR in Generic. It passed the build, the offline automated tests and an independent code review, and was tested in game on one RTX 5090 (driver 621.14); it has not been accepted on other GPUs, Windows versions or drivers.
 
 ## 本版改动 / Changes in this build
+
+unified2m（更新 Generic NR 和本说明；Bridge、MFG Unlock、卸载工具、恢复助手和运行库与 unified2l 相同）：
+
+1. 呈现层失效。关闭再打开呈现层，或在 ReShade 界面关闭时开关 NR，有时会让呈现层不再生效，直到改一次 NR 分辨率才恢复。原因是：在 pre-present 路径上创建的 NR 对象把 GPU 初始化命令录进了一个命令缓冲，而这个命令缓冲随后被丢弃、没有提交。现在这些对象只由帧生成（DLSS-G）路径创建；pre-present 路径只在确认创建已在 GPU 上完成后才使用它们，并且它开始录制的每个命令缓冲都会提交。每次开关后，最初 1～3 帧由帧生成路径处理，之后由 pre-present 路径接手（测试中为 37～91 ms）。切换地图或界面后呈现层失效，很可能也是同一原因；这种情况尚未在报告问题的机器上确认。
+2. 黑边全屏。游戏分辨率小于显示器时（例如在 5120×2160 显示器上使用 3840×2160），呈现层会出现位置错开的模型“影子”。现在 pre-present 路径按 DLSS-G 声明的画面原点读写。
+3. 无 UI 画面。游戏没有标记无 UI 画面、但 Streamline 提供了一张时，pre-present 路径现在也会处理这些帧，并把 NR 结果复制进这张无 UI 画面，使帧生成在两张画面里都拿到 NR 输出。《明日方舟：终末地》会做这个标记，因此本游戏中的行为不变。
+4. 过期输入。帧生成停止后，pre-present 路径不再继续使用最长 2 秒前的运动矢量和深度：缓存的输入在 8 个帧生成调用间隔后失效（限定在 250 ms～2 s），所引用的图像被销毁时立即失效。
+5. 性能。与 unified2l 相比，每帧新增的工作只有一次原子的就绪检查和计时计数：不额外加锁，也不拼接字符串。诊断跟踪 `[prefg-diag]` 默认关闭（在 `[RenoDX.DLSS5]` 下写 `NRDiagPrefg=1` 开启）。在开发机同一场景下与 unified2l 对比，输出帧率和第 99 百分位帧间隔的差异不超过约 4%（每个版本各测一次）。
+6. 日志。ReShade.log 会记录呈现流的每次创建和接手（`[feature-lifecycle] Vulkan Present stream: ...`）、DLSS-G 画面区域的变化，并每 30 秒记录两条路径的每帧 CPU 时间和等锁时间（`prepresent_cpu[...]`、`prefg_cpu[...]`）。
+7. 版本号。Generic 仍报告 `v8.5.0-rc10-unified2l-20261103`，以便 Bridge 的兼容性检查继续接受它。本版本以 ReShade.log 中 `Vulkan pre-present NR ready` 一行末尾的 `build unified2m-fix2-20261107` 识别。
+
+已知限制：用 NR 快捷键（Num *）快速开关，以及两个呈现层（`NRPresentPasses=2`），尚未在游戏内测试。帧生成启动后可能出现提示“NR skipped frames without saying why”；unified2l 同样会出现，它来自帧计数口径，不代表 NR 没有输出。
+
+unified2m (updates Generic NR and this document; Bridge, MFG Unlock, uninstaller, restore helper and runtime files are unchanged from unified2l):
+
+1. Present layers that stop working. Turning the Present layer off and on, or toggling NR while the ReShade overlay is closed, sometimes left the Present layer without effect until the NR resolution was changed. NR objects created on the pre-present path recorded their GPU initialisation into a command buffer that was then discarded without being submitted. Now only the frame-generation (DLSS-G) path creates these objects; the pre-present path uses them only after their creation is proven complete on the GPU, and every command buffer it begins is submitted. After each toggle the frame-generation path serves the first 1–3 frames, then the pre-present path takes over (37–91 ms in testing). The same cause is the likely reason for Present layers stopping after a map change or UI transition; that case has not yet been confirmed on the machine where it was reported.
+2. Letterboxed fullscreen. When the game resolution is smaller than the display (for example 3840×2160 on a 5120×2160 display), the Present layer showed displaced "shadow" copies of models. The pre-present path now reads and writes at the image origin that DLSS-G declares.
+3. HUD-less image. When a game does not mark a HUD-less image but Streamline supplies one, the pre-present path now serves those frames as well and copies the NR result into the HUD-less image, so frame generation receives NR output in both. Arknights: Endfield marks it, so behaviour in this game is unchanged.
+4. Stale inputs. After frame generation stops, the pre-present path no longer keeps using motion vectors and depth up to 2 s old: cached inputs expire after eight frame-generation call intervals (bounded to 250 ms–2 s), and immediately when the images they refer to are destroyed.
+5. Performance. Compared with unified2l, the only per-frame additions are an atomic readiness check and timing counters: no additional lock and no string formatting. The diagnostic trace `[prefg-diag]` is off by default (`NRDiagPrefg=1` under `[RenoDX.DLSS5]` turns it on). On the development machine, in the same scene against unified2l, present rate and 99th-percentile frame interval differed by no more than about 4 % (one run per version).
+6. Logs. ReShade.log records each Present-stream creation and takeover (`[feature-lifecycle] Vulkan Present stream: ...`), changes of the DLSS-G subrects, and every 30 s the per-frame CPU and lock-wait time of both paths (`prepresent_cpu[...]`, `prefg_cpu[...]`).
+7. Version string. Generic still reports `v8.5.0-rc10-unified2l-20261103`, so that Bridge's compatibility check continues to accept it. This build is identified by `build unified2m-fix2-20261107` at the end of the `Vulkan pre-present NR ready` line in ReShade.log.
+
+Known limitations: rapid toggling with the NR hotkey (Num *) and two Present layers (`NRPresentPasses=2`) have not been tested in game. The message "NR skipped frames without saying why" can appear after frame generation starts; it also occurs in unified2l, comes from frame accounting and does not mean that NR produced no output.
+
+以下为 unified2l 的改动 / unified2l changes:
 
 unified2l（更新 Generic NR `v8.5.0-rc10-unified2l-20261103` 和本说明；Bridge、MFG Unlock、卸载工具、恢复助手和运行库与 unified2k 相同）：
 

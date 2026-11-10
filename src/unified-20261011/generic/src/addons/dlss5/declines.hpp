@@ -211,6 +211,12 @@ enum class NrDeclineReason : uint8_t {
   // or NR feature is allocated for a stream that lacks one.  ELIGIBLE like
   // kReplacementPending: a pass-through, the next evaluate retries.
   kQuiesceHold,
+  // 2026-11-07 (vulkan_path.hpp prefg_use_only): the Vulkan pre-present path
+  // only uses the Present stream's objects; one it would have to create (NR
+  // feature, workset or pre-FG image) is created by DLSS-G's evaluate of the
+  // same frame, which serves it.  INELIGIBLE: a hand-over between the two
+  // paths of one frame, whose evaluate attempt is counted on its own.
+  kPreFgLeftToEvaluate,
   kCount,
 };
 inline std::atomic_uint64_t nr_decline_counts[
@@ -287,6 +293,9 @@ inline const char* const kNrDeclineNames[
     " through)",
     "the game-is-leaving latch holds NR's releases, so no new workset or NR"
     " feature is allocated while it holds (the image passes through)",
+    "Vulkan pre-present path: an object of the Present stream is missing or"
+    " not yet proven on the GPU; DLSS-G's evaluate creates it and serves this"
+    " frame",
 };
 // Short tags for the periodic telemetry line (same order).
 inline const char* const kNrDeclineTags[
@@ -303,7 +312,7 @@ inline const char* const kNrDeclineTags[
     "present_prefg",
     "vk_extension_missing", "vk_nr_pending",
     "screenshot_wait", "vk_owner_mismatch",
-    "replacement_wait", "quiesce_hold",
+    "replacement_wait", "quiesce_hold", "prefg_left_to_evaluate",
 };
 inline void CountNrDecline(NrDeclineReason reason) {
   nr_decline_counts[static_cast<size_t>(reason)].fetch_add(

@@ -1951,6 +1951,23 @@ inline bool HotkeyDown(uint32_t virtual_key, bool focused, bool overlay_open) {
   return virtual_key == VK_SNAPSHOT && (state & 0x0001) != 0;
 }
 
+// Whether a key is held right now, focus or not (the 0x8000 bit only, so a
+// PrintScreen press bit is left for HotkeyDown).  For the log of presses the
+// gameplay poll ignores.
+inline bool KeyHeldAnywhere(uint32_t virtual_key) {
+  using KeyStateFn = SHORT(WINAPI*)(int);
+  static const KeyStateFn raw_key_state = [] {
+    HMODULE win32u = GetModuleHandleW(L"win32u.dll");
+    return win32u != nullptr
+               ? reinterpret_cast<KeyStateFn>(GetProcAddress(win32u, "NtUserGetAsyncKeyState"))
+               : nullptr;
+  }();
+  if (virtual_key == 0 || virtual_key == VK_SNAPSHOT) return false;
+  const SHORT state = raw_key_state != nullptr ? raw_key_state(static_cast<int>(virtual_key))
+                                               : GetAsyncKeyState(static_cast<int>(virtual_key));
+  return (state & 0x8000) != 0;
+}
+
 // Edge-detected capture-hotkey poll, called once per present with the
 // configurable virtual-key code (owned by dlssnr.hpp) and whether the game
 // has the foreground: GetAsyncKeyState is system-wide, so without it the key

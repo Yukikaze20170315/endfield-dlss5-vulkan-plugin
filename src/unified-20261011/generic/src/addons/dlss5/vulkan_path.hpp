@@ -301,6 +301,102 @@ inline bool RecordedUseComplete(uint64_t id) {
   return live_recorded_uses.find(id) == live_recorded_uses.end();
 }
 
+// The Present stream's objects (the pre-FG stream's Present stage: its NR
+// features, worksets and pre-FG images) are created only where the recording
+// is certain to execute: DLSS-G's own command buffer (RunPreFg).  The
+// pre-present path (PrePresentNr) runs with prefg_use_only set: it never
+// creates one (ServePreFgFrameImpl and ProcessNr decline with
+// kPreFgLeftToEvaluate instead) and serves only once the command buffers
+// that created them are proven complete - prefg_creation_use, a recorded use
+// like the others, released when each such buffer is begun again or freed.
+// 2026-11-07: a feature created on the pre-present path's own buffer, whose
+// frame then declined, stayed on the CPU while its creation commands were
+// discarded with the buffer; it ran every frame without effect until
+// something created it again.  The look history is the one exception: a
+// storage image of this add-on with no runtime state, created mid-pass;
+// PrePresentNr submits every buffer it began, so its first barrier runs.
+inline thread_local bool prefg_use_only = false;
+inline uint64_t prefg_creation_use = 0;      // under runtime_mutex
+inline uint64_t prefg_creations = 0;         // under runtime_mutex
+// Read by the present thread outside runtime_mutex (counted per present).
+inline std::atomic_bool prefg_takeover_pending{false};
+inline std::atomic_uint64_t prefg_takeover_presents{0};  // presents checked since the creation
+inline int64_t prefg_creation_ns = 0;        // under runtime_mutex
+// Why the pre-present path left a present to DLSS-G's evaluate before any
+// recording (vk prepresent[yielded=]).  kYieldMismatch: the readiness DLSS-G's
+// evaluate published names another shape, contract or layer count.
+enum PreFgYield : uint32_t {
+  kYieldImages, kYieldFeature, kYieldContract, kYieldWorkset, kYieldReplacement, kYieldProof,
+  kYieldOrigin, kYieldMismatch, kYieldCount,
+};
+inline constexpr const char* kPreFgYieldTags[kYieldCount] = {
+    "images", "feature", "contract", "workset", "replacement", "proof", "origin", "mismatch"};
+// The pre-present path's readiness, checked by the present thread without
+// runtime_mutex (each present would otherwise queue behind DLSS-G's evaluate,
+// which holds it while it records NR).  DLSS-G's evaluate (RunPreFg, under
+// runtime_mutex) publishes the key of the shape the Present stream can serve
+// use-only, or 0 with the first missing condition; a creation clears the key
+// and publishes its proof use.  Only a fast path: the serve checks the objects
+// and the proof again under runtime_mutex before it records anything.
+inline std::atomic_uint64_t prefg_ready_key{0};
+inline std::atomic_uint32_t prefg_ready_blocker{kYieldImages};
+inline std::atomic_uint64_t prefg_creation_use_published{0};
+inline uint64_t PreFgReadyKey(const void* device, uint32_t width, uint32_t height, uint32_t format, bool hud,
+                              uint32_t create_flags, uint64_t configuration, uint32_t stack) {
+  uint64_t key = 1469598103934665603ull;
+  const auto mix = [&](uint64_t value) {
+    key ^= value;
+    key *= 1099511628211ull;
+    key ^= key >> 29;
+  };
+  mix(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(device)));
+  mix(width | (static_cast<uint64_t>(height) << 32));
+  mix(format | (static_cast<uint64_t>(hud ? 1 : 0) << 32) | (static_cast<uint64_t>(stack) << 40));
+  mix(create_flags);
+  mix(configuration);
+  return key | 1u;  // never 0, the "not ready" value
+}
+inline uint32_t prefg_lifecycle_logged = 0;  // under runtime_mutex
+inline uint64_t prefg_lifecycle_suppressed = 0;
+inline constexpr uint32_t kPreFgLifecycleLogCap = 400;
+// Caller holds runtime_mutex.  One line per event, bounded; "[feature-lifecycle]"
+// puts it into the suite's action journal (dlss5_log) as well.
+inline void LogPreFgLifecycle(const std::string& text) {
+  if (prefg_lifecycle_logged >= kPreFgLifecycleLogCap) {
+    ++prefg_lifecycle_suppressed;
+    return;
+  }
+  ++prefg_lifecycle_logged;
+  Log(reshade::log::level::info,
+      "[feature-lifecycle] Vulkan Present stream: " + text
+          + (prefg_lifecycle_logged == kPreFgLifecycleLogCap
+                 ? " (line cap reached; later events are counted in prepresent[lifecycle_suppressed=])"
+                 : ""));
+}
+// Caller holds runtime_mutex; `cmd` is the command list `what` was recorded on.
+inline void NotePreFgCreation(reshade::api::command_list* cmd, const std::string& what, bool proof = true) {
+  if (proof) {
+    if (prefg_creation_use == 0 || RecordedUseComplete(prefg_creation_use)) {
+      prefg_creation_use = next_use_id++;
+    }
+    TrackRecordedUse(cmd, prefg_creation_use);
+    prefg_creation_use_published.store(prefg_creation_use, std::memory_order_release);
+    prefg_ready_blocker.store(kYieldProof, std::memory_order_relaxed);
+    prefg_ready_key.store(0, std::memory_order_release);
+    prefg_takeover_presents.store(0, std::memory_order_relaxed);
+    prefg_takeover_pending.store(true, std::memory_order_relaxed);
+    prefg_creation_ns = SteadyNowNs();
+  }
+  ++prefg_creations;
+  char buffer[64] = {};
+  snprintf(buffer, sizeof(buffer), "%llx",
+           static_cast<unsigned long long>(cmd != nullptr ? cmd->get_native() : 0));
+  LogPreFgLifecycle(what + " created on " + (prefg_use_only ? "the pre-present path's" : "DLSS-G's")
+                    + " command buffer " + buffer
+                    + (proof ? " (creation proof use " + std::to_string(prefg_creation_use) + ")"
+                             : " (submitted with that buffer)"));
+}
+
 inline constexpr VkImageLayout kLayoutUndefined = static_cast<VkImageLayout>(0);
 inline constexpr VkImageLayout kLayoutGeneral = static_cast<VkImageLayout>(1);
 inline constexpr VkImageLayout kLayoutReadOnly = static_cast<VkImageLayout>(5);
@@ -2587,6 +2683,11 @@ inline NrDeclineReason ProcessNr(VkCommandBuffer command_buffer,
   // Upscaled shape (NR in place on a storage image the stream owns).
   const uint32_t stage_index = StageIndex(stage);
   const uint32_t stack = stages::Count();
+  // The pre-present path uses the Present stream's objects and never creates
+  // one (prefg_use_only above): wherever this evaluate would allocate, it
+  // declines before recording anything, and DLSS-G's evaluate creates.
+  const bool use_only = prefg_use_only && stage == stages::Point::Present;
+  bool left_to_evaluate = false;
   if (!stages::Current().Valid()) return NrDeclineReason::kMalformedEvaluate;
   // Reconcile even zero-count stages before inspecting any image. No caller
   // may hold runtime_mutex across ProcessNr (CheckExtensions uses the loader).
@@ -2997,6 +3098,7 @@ inline NrDeclineReason ProcessNr(VkCommandBuffer command_buffer,
                                     && w.source_width == resource_width && w.source_height == resource_height;
                               });
   if (workset == feature.worksets.end()) {
+    if (use_only) return NrDeclineReason::kPreFgLeftToEvaluate;
     if (feature.worksets.size() >= std::max(1u, max_worksets.load())) {
       // All views in this set name its own scratch, never the game's output.
       // A completed recording therefore permits a same-contract re-key
@@ -3151,6 +3253,12 @@ inline NrDeclineReason ProcessNr(VkCommandBuffer command_buffer,
     ++lifecycle_events;
     feature.nr_use[pass] = next_use_id++;
     TrackRecordedUse(cmd, feature.nr_use[pass]);
+    if (stage == stages::Point::Present) {
+      char buffer[96] = {};
+      snprintf(buffer, sizeof(buffer), "NR feature 18 %ux%u (stack pass %u, handle %p)", nr_width, nr_height,
+               pass + 1, static_cast<void*>(slot.handle));
+      NotePreFgCreation(cmd, buffer);
+    }
     feature.nr_width = nr_width;
     feature.nr_height = nr_height;
     slot.pending_reset = true;
@@ -3159,12 +3267,17 @@ inline NrDeclineReason ProcessNr(VkCommandBuffer command_buffer,
     return true;
   };
   if (feature.slots[0].handle == nullptr) {
-    if (feature.slots[0].failed || !create_slot(0)) return NrDeclineReason::kFailureBackoff;
+    if (feature.slots[0].failed) return NrDeclineReason::kFailureBackoff;
+    if (use_only) return NrDeclineReason::kPreFgLeftToEvaluate;
+    if (!create_slot(0)) return NrDeclineReason::kFailureBackoff;
     return NrDeclineReason::kSlotWarmupMaturation;
   }
   uint32_t passes = 1;
   while (passes < stack && feature.slots[passes].handle != nullptr) ++passes;
-  if (passes < stack && !feature.slots[passes].failed) create_slot(passes);
+  if (passes < stack && !feature.slots[passes].failed) {
+    if (use_only) return NrDeclineReason::kPreFgLeftToEvaluate;
+    create_slot(passes);
+  }
 
   // The scratch images this frame needs, created on first use (Workset).
   // Views carry no usage restriction: ReShade turns shader_resource into
@@ -3177,8 +3290,13 @@ inline NrDeclineReason ProcessNr(VkCommandBuffer command_buffer,
   const format work_format = output_desc.texture.format == format::r32g32b32a32_float
                                  ? format::r32g32b32a32_float
                                  : format::r16g16b16a16_float;
+  bool surfaces_noted = false;
   const auto ensure = [&](Surface surface) {
     if (views[surface].handle != 0) return true;
+    if (use_only) {
+      left_to_evaluate = true;
+      return false;
+    }
     uint32_t image_width = width;
     uint32_t image_height = height;
     format image_format = format::r16g16b16a16_float;
@@ -3273,6 +3391,9 @@ inline NrDeclineReason ProcessNr(VkCommandBuffer command_buffer,
            << WorksetBytes(api_device, *workset) / 1048576.0 << " MiB";
       Log(reshade::log::level::info, text.str());
     }
+    if (stage == stages::Point::Present && !std::exchange(surfaces_noted, true)) {
+      NotePreFgCreation(cmd, "NR workset ws" + std::to_string(workset->id) + " surfaces");
+    }
     return true;
   };
   bool made = ensure(kOriginal) && ensure(kProxy) && ensure(kNeural)
@@ -3284,12 +3405,18 @@ inline NrDeclineReason ProcessNr(VkCommandBuffer command_buffer,
     // DLSS stream like D3D12's NormStream::commit; cleared on first use,
     // which the autoscale reads as "snap" (copy_dest: the clear is a
     // vkCmdClearColorImage, which needs TRANSFER_DST).
+    if (made && !workset->units.absolute && (feature.commit.handle == 0 || feature.commit_view.handle == 0)
+        && use_only) {
+      left_to_evaluate = true;
+      made = false;
+    }
     if (made && !workset->units.absolute && feature.commit.handle == 0) {
       made = api_device->create_resource(
                   resource_desc(1, 1, 1, 1, format::r32g32b32a32_float, 1, memory_heap::gpu_only,
                                 resource_usage::unordered_access | resource_usage::copy_dest),
                   nullptr, resource_usage::undefined, &feature.commit);
       if (made) feature.commit_use = next_use_id++;
+      if (made && stage == stages::Point::Present) NotePreFgCreation(cmd, "committed divisor");
     }
     // A view failure can be transient. Keep the valid resource and retry the
     // missing view on the next evaluate instead of wedging this stream.
@@ -3304,6 +3431,7 @@ inline NrDeclineReason ProcessNr(VkCommandBuffer command_buffer,
     made = made && (passes < 2 || ensure(kStack0)) && (passes < 3 || ensure(kStack1));
   }
   if (!made) {
+    if (left_to_evaluate) return NrDeclineReason::kPreFgLeftToEvaluate;
     static std::atomic_bool logged{false};
     if (!logged.exchange(true)) {
       Log(reshade::log::level::error,
@@ -3339,6 +3467,9 @@ inline NrDeclineReason ProcessNr(VkCommandBuffer command_buffer,
       && (!look_bands
           || (ensure(kBandA) && ensure(kBandB) && ensure(kBandMaxA) && ensure(kBandMaxB)))
       && ensure(kLookScratch);
+  // A look surface the pre-present path lacks would otherwise switch the
+  // look off for its frames; DLSS-G's evaluate creates it instead.
+  if (left_to_evaluate) return NrDeclineReason::kPreFgLeftToEvaluate;
   const bool transport_active = look_shape && transport_wanted;
 
   // 1. The DLSS output into `original`.  Every scratch image carries its
@@ -3759,6 +3890,9 @@ inline NrDeclineReason ProcessNr(VkCommandBuffer command_buffer,
           for (const LookHistoryImage& half : history.buffers) {
             barrier(half.image, resource_usage::undefined, resource_usage::unordered_access);
           }
+          if (stage == stages::Point::Present) {
+            NotePreFgCreation(cmd, "look history (stack pass " + std::to_string(pass + 1) + ")", !use_only);
+          }
         } else {
           // No history this frame: shape without the temporal filter and
           // try again next frame.
@@ -4121,6 +4255,8 @@ inline void DestroyPreFgImages(reshade::api::device* device, PreFgImages* images
 // recorded uses may replay until the command buffer is begun again).
 inline void RetirePreFgImages() {
   if (prefg.live.device == nullptr) return;
+  prefg_ready_blocker.store(kYieldImages, std::memory_order_relaxed);
+  prefg_ready_key.store(0, std::memory_order_release);
   retired_prefg.push_back(prefg.live);
   prefg.live = {};
 }
@@ -4216,6 +4352,11 @@ struct PreFgServe {
   PreFgInput back;
   PreFgInput hud;
   bool with_hud = false;
+  // RunPreFg only, with_hud false: DLSS-G names a HUD-less image of its own
+  // that the game does not tag (Streamline filled it from the back buffer
+  // before this evaluate).  The NR result is copied into it as well, so both
+  // of DLSS-G's inputs carry NR; the image set stays the back-buffer-only one.
+  bool refresh_hud = false;
   uint32_t width = 0, height = 0;
   reshade::api::format image_format = reshade::api::format::unknown;
   NVSDK_NGX_Resource_VK* motion = nullptr;
@@ -4269,6 +4410,9 @@ struct PreFgInputsCache {
   bool valid = false;
   uint32_t stable = 0;  // consecutive index-1 evaluates with these handles
   int64_t updated_ns = 0;
+  // Smoothed interval between index-1 evaluates (each step capped at 250 ms),
+  // 0 until two were seen; PreFgInputsFreshNs scales the cache's age limit by it.
+  int64_t interval_ns = 0;
   NVSDK_NGX_Resource_VK motion = {};
   NVSDK_NGX_Resource_VK depth = {};
   NVSDK_NGX_Resource_VK hud = {};
@@ -4282,6 +4426,11 @@ struct PreFgInputsCache {
   VkImage backbuffers[4] = {};
   uint32_t backbuffer_count = 0;
   uint32_t width = 0, height = 0;  // the back buffer subrect DLSS-G named
+  // Its origin, and the HUD-less frame's: a game running below the display's
+  // resolution in exclusive fullscreen keeps a display-sized swap chain and
+  // names its frame as a subrect of it (Endfield 3840x2160 on a 5120x2160
+  // display: Backbuffer at 640,0, HUD-less at 0,0).
+  uint32_t back_x = 0, back_y = 0, hud_x = 0, hud_y = 0;
   uint32_t input_width = 0, input_height = 0;
   uint32_t mv_base_x = 0, mv_base_y = 0, depth_base_x = 0, depth_base_y = 0;
   float motion_scale_x = 1.f, motion_scale_y = 1.f;
@@ -4296,7 +4445,7 @@ struct PrePresentSlot {
   VkSemaphore semaphore = nullptr;
   bool submitted = false;
   // Begun since its last empty recording (PrePresentReleaseProofs): its
-  // recorded uses are still held, whether it was submitted or abandoned.
+  // recorded uses are still held until it completes and is begun again.
   bool recorded = false;
 };
 struct PrePresentState {
@@ -4332,6 +4481,9 @@ struct PrePresentState {
   // records no NR of its own.
   VkImage pending_image = nullptr;
   bool pending = false;
+  // The last Present-stream creation proof this thread saw complete
+  // (prefg_creation_use_published): rechecked only when a new one appears.
+  uint64_t proven_creation_use = 0;
 };
 inline PreFgInputsCache prefg_inputs;  // under runtime_mutex
 inline PrePresentState prepresent;     // present thread only, except the atomics below
@@ -4343,6 +4495,419 @@ inline std::atomic_uint64_t prepresent_mismatches{0};
 inline std::atomic_uint64_t prepresent_no_inputs{0};
 inline std::atomic_uint64_t prepresent_declines{0};
 inline std::atomic_uint64_t prepresent_not_backbuffer{0};
+// Presents left to DLSS-G's evaluate before any recording because the Present
+// stream was not ready for a use-only serve (PreFgYield above), by cause.
+inline std::atomic_uint64_t prepresent_yields[kYieldCount] = {};
+// Buffers begun, then submitted without serving the frame (every buffer begun
+// is submitted), by the serve's decline.
+inline std::atomic_uint64_t prepresent_unserved[static_cast<size_t>(NrDeclineReason::kCount)] = {};
+inline std::atomic_uint64_t prepresent_unserved_total{0};
+// Presents whose bridge flags said the game tags a HUD-less frame (bit 0).
+inline std::atomic_uint64_t prepresent_hud_flag{0};
+// The last hand-back after a creation: presents and ms from the creation to
+// the pre-present path's next served frame.
+inline std::atomic_uint64_t prepresent_takeovers{0};
+inline std::atomic_uint64_t prepresent_takeover_presents_last{0};
+inline std::atomic_int64_t prepresent_takeover_ms_last{0};
+// DLSS-G subrect changes (RunPreFg), logged up to kSubrectLogCap.
+inline constexpr uint32_t kSubrectLogCap = 32;
+inline uint32_t prefg_subrect_logged = 0;  // under runtime_mutex
+inline uint64_t prefg_subrect_changes = 0; // under runtime_mutex
+struct PreFgSubrectSeen {
+  bool valid = false;
+  uint32_t back_x = 0, back_y = 0, width = 0, height = 0;
+  bool with_hud = false;
+  uint32_t hud_x = 0, hud_y = 0;
+  bool operator==(const PreFgSubrectSeen& o) const {
+    return valid == o.valid && back_x == o.back_x && back_y == o.back_y && width == o.width
+        && height == o.height && with_hud == o.with_hud && hud_x == o.hud_x && hud_y == o.hud_y;
+  }
+};
+inline PreFgSubrectSeen prefg_subrect_seen;  // under runtime_mutex; outlives prefg_inputs
+// The Upscaled fallback's episodes (logged up to 16 lines): entries because
+// frame generation went silent, entries because evaluates could not be
+// served, and exits.
+inline std::atomic_uint64_t prefg_fallback_enter_silent{0};
+inline std::atomic_uint64_t prefg_fallback_enter_unservable{0};
+inline std::atomic_uint64_t prefg_fallback_exits{0};
+// The bridge's HUD-less flag at the last present (bit 0 of PrePresentNr's
+// flags): -1 before the first, so without the bridge's pre-present export
+// RunPreFg takes DLSS-G's HUD-less frame as before.  Both paths decide "with
+// HUD-less" by it, so the images DLSS-G's evaluate creates are the shape the
+// pre-present path serves.
+inline std::atomic_int prepresent_hud_tagged{-1};
+// The images the input cache names (motion, depth, HUD-less, the Backbuffer
+// ring), watched by the destroy_resource observer: one destroyed invalidates
+// the cache until DLSS-G's next evaluate names live ones.
+inline constexpr uint32_t kPreFgWatchedImages = 7;
+inline std::atomic_uint64_t prefg_watched_images[kPreFgWatchedImages] = {};
+inline std::atomic_bool prefg_inputs_destroyed{false};
+inline std::atomic_uint64_t prefg_inputs_destroyed_count{0};
+inline void OnDestroyResourceWatched(reshade::api::device* /*device*/, reshade::api::resource resource) {
+  if (resource.handle == 0) return;
+  for (const std::atomic_uint64_t& watched : prefg_watched_images) {
+    if (watched.load(std::memory_order_relaxed) == resource.handle) {
+      prefg_inputs_destroyed.store(true, std::memory_order_release);
+      prefg_inputs_destroyed_count.fetch_add(1, std::memory_order_relaxed);
+      return;
+    }
+  }
+}
+// Per-call CPU time of a frame-path function over one 30 s telemetry window
+// (vk prepresent_cpu[] / prefg_cpu[]): calls, mean, max, calls over 0.5, 1
+// and 2 ms, and the time spent waiting for runtime_mutex (summed and worst).
+// Two clock reads per call; the lock wait costs a clock only when it blocked.
+struct FrameCpuStats {
+  std::atomic_uint64_t count{0};
+  std::atomic_uint64_t sum_ns{0};
+  std::atomic_uint64_t max_ns{0};
+  std::atomic_uint64_t over[3] = {};
+  std::atomic_uint64_t wait_sum_ns{0};
+  std::atomic_uint64_t wait_max_ns{0};
+  static void Max(std::atomic_uint64_t* slot, uint64_t value) {
+    uint64_t seen = slot->load(std::memory_order_relaxed);
+    while (value > seen && !slot->compare_exchange_weak(seen, value, std::memory_order_relaxed)) {
+    }
+  }
+  void Record(uint64_t ns, uint64_t wait_ns) {
+    count.fetch_add(1, std::memory_order_relaxed);
+    sum_ns.fetch_add(ns, std::memory_order_relaxed);
+    Max(&max_ns, ns);
+    if (ns > 500'000) over[0].fetch_add(1, std::memory_order_relaxed);
+    if (ns > 1'000'000) over[1].fetch_add(1, std::memory_order_relaxed);
+    if (ns > 2'000'000) over[2].fetch_add(1, std::memory_order_relaxed);
+    if (wait_ns != 0) {
+      wait_sum_ns.fetch_add(wait_ns, std::memory_order_relaxed);
+      Max(&wait_max_ns, wait_ns);
+    }
+  }
+  // The window's figures, then a new window.
+  std::string TakeReport(const char* name) {
+    const uint64_t n = count.exchange(0, std::memory_order_relaxed);
+    const uint64_t sum = sum_ns.exchange(0, std::memory_order_relaxed);
+    std::ostringstream out;
+    out << ' ' << name << "[n=" << n << " avg_us=" << (n != 0 ? sum / n / 1000 : 0)
+        << " max_us=" << max_ns.exchange(0, std::memory_order_relaxed) / 1000
+        << " over_0.5ms=" << over[0].exchange(0, std::memory_order_relaxed)
+        << " over_1ms=" << over[1].exchange(0, std::memory_order_relaxed)
+        << " over_2ms=" << over[2].exchange(0, std::memory_order_relaxed)
+        << " lock_wait_us=" << wait_sum_ns.exchange(0, std::memory_order_relaxed) / 1000
+        << " lock_wait_max_us=" << wait_max_ns.exchange(0, std::memory_order_relaxed) / 1000 << ']';
+    return out.str();
+  }
+};
+inline FrameCpuStats prepresent_cpu;  // PrePresentNr with NR and the Present layers on
+inline FrameCpuStats prefg_cpu;       // RunPreFg with the Present layers on
+struct FrameCpuTimer {
+  explicit FrameCpuTimer(FrameCpuStats& stats)
+      : stats_(stats), start_(SteadyNowNs()), previous_(runtime_lock::runtime_wait_sink) {
+    runtime_lock::runtime_wait_sink = &wait_ns_;
+  }
+  ~FrameCpuTimer() {
+    runtime_lock::runtime_wait_sink = previous_;
+    const int64_t ns = SteadyNowNs() - start_;
+    stats_.Record(ns > 0 ? static_cast<uint64_t>(ns) : 0, wait_ns_);
+  }
+  FrameCpuTimer(const FrameCpuTimer&) = delete;
+  FrameCpuTimer& operator=(const FrameCpuTimer&) = delete;
+
+ private:
+  FrameCpuStats& stats_;
+  int64_t start_;
+  uint64_t wait_ns_ = 0;
+  uint64_t* previous_;
+};
+// How old the input cache may be for the pre-present path to serve from it:
+// eight of DLSS-G's recent evaluate intervals, at least 250 ms, at most
+// kPrePresentInputsFreshNs.  After the game turns frame generation off the
+// guides stop being named; serving on from them for the full 2 s ran NR on
+// guides that no longer describe the frame.
+inline int64_t PreFgInputsFreshNs(const PreFgInputsCache& inputs) {
+  constexpr int64_t kFloor = 250'000'000;
+  if (inputs.interval_ns <= 0) return kFloor;
+  return std::clamp(inputs.interval_ns * 8, kFloor, kPrePresentInputsFreshNs);
+}
+
+// Caller holds runtime_mutex.  Whether the pre-present path may serve the
+// Present stream of `stack` layers without creating anything, the creation
+// proof aside: kYieldCount when it may, else the first missing condition.
+// Only a fast path; ProcessNr's use-only mode is what guarantees no creation.
+inline uint32_t PreFgUseOnlyBlocker(reshade::api::device* api_device, uint32_t width, uint32_t height,
+                                    reshade::api::format format, bool hud, uint32_t create_flags,
+                                    uint32_t stack) {
+  const PreFgImages& live = prefg.live;
+  if (live.device != api_device || live.width != width || live.height != height || live.format != format
+      || live.hud != hud) {
+    return kYieldImages;
+  }
+  const auto found = features.find(prefg.Handle());
+  if (found == features.end()) return kYieldFeature;
+  const StageFeature& stage = found->second.stages[StageIndex(stages::Point::Present)];
+  if (found->second.create_flags != create_flags
+      || stage.configuration != configuration_generation.load(std::memory_order_relaxed)) {
+    return kYieldContract;
+  }
+  for (uint32_t pass = 0; pass < stack; ++pass) {
+    const NrFeatureSlot& slot = stage.slots[pass];
+    if (slot.handle != nullptr) continue;
+    // A later pass waiting out its retry interval leaves the passes before it,
+    // and none after it: ProcessNr runs the passes up to the first empty slot
+    // and creates no later one while that slot waits.
+    if (pass != 0 && slot.failed && !FeatureFailureExpired(slot)) break;
+    return kYieldFeature;
+  }
+  if (stage.worksets.empty()) return kYieldWorkset;
+  if (StageReplacementPending(stage)) return kYieldReplacement;
+  return kYieldCount;
+}
+// Caller holds runtime_mutex: DLSS-G's evaluate, with the shape it names.
+// Publishes the readiness the present thread reads (prefg_ready_key).
+inline void PublishPreFgReadiness(reshade::api::device* api_device, uint32_t width, uint32_t height,
+                                  reshade::api::format format, bool hud, uint32_t create_flags) {
+  const uint32_t stack = std::min(stages::Snapshot().Count(stages::Point::Present), kMaxNrPasses);
+  const uint32_t blocker = PreFgUseOnlyBlocker(api_device, width, height, format, hud, create_flags, stack);
+  if (blocker != kYieldCount) {
+    prefg_ready_blocker.store(blocker, std::memory_order_relaxed);
+    prefg_ready_key.store(0, std::memory_order_release);
+    return;
+  }
+  prefg_ready_key.store(PreFgReadyKey(api_device, width, height, static_cast<uint32_t>(format), hud, create_flags,
+                                      configuration_generation.load(std::memory_order_relaxed), stack),
+                        std::memory_order_release);
+}
+
+// ---------------------------------------------------------------------------
+// Present-layer handover diagnostics (added in diagnostic build
+// unified2l-diag1, 2026-11-07; off by default, NRDiagPrefg=1 turns it on).
+// Off, it costs a static flag test per call site; on with no window open, an
+// atomic load (Active) - no lock, no string.  A bounded,
+// event-driven identity trace of the pre-FG stream:
+// which path served a game frame (DLSS-G's evaluate or the pre-present
+// queue), which images it read and wrote, the NR feature and workset it ran,
+// how old the pre-present input cache was, and what the DLSS-G evaluate that
+// followed named.  A window of kWindowLines lines opens when the Present
+// layer count or NR on/off changes, when the stream's NR feature or pre-FG
+// images are new, when DLSS-G evaluates resume after a gap, when DLSS-G's
+// subrects change, when the pre-present path serves from a cache older than
+// kStaleCacheMs, or on a mismatch; kSessionLines caps a session, after which
+// lines are only counted (the 30 s summary line names the count).
+// [RenoDX.DLSS5] keys, read once: NRDiagPrefg=1 turns the trace on;
+// NRDiagPrePresent=0 leaves every frame to DLSS-G's evaluate (A/B for the
+// pre-present path); NRDiagInvalidateOnOff=1 drops the pre-present input
+// cache while the Present layer or NR is off, so a re-enable starts from
+// fresh evaluates (A/B for the frozen cache).
+namespace prefg_diag {
+inline constexpr uint32_t kWindowLines = 120;
+inline constexpr uint32_t kSessionLines = 8000;
+inline constexpr int64_t kStaleCacheMs = 100;
+inline constexpr int64_t kEvaluateGapNs = 500'000'000;
+inline constexpr int64_t kSummaryNs = 30'000'000'000;
+inline uint32_t ReadKey(const char* key, uint32_t fallback) {
+  uint32_t value = fallback;
+  reshade::get_config_value(nullptr, "RenoDX.DLSS5", key, value);
+  return value;
+}
+inline bool Enabled() {
+  static const bool on = ReadKey("NRDiagPrefg", 0) != 0;
+  return on;
+}
+inline bool PrePresentAllowed() {
+  static const bool on = ReadKey("NRDiagPrePresent", 1) != 0;
+  return on;
+}
+inline bool InvalidateOnOff() {
+  static const bool on = ReadKey("NRDiagInvalidateOnOff", 0) != 0;
+  return on;
+}
+inline std::mutex mutex;  // never held while taking runtime_mutex
+// Written under `mutex`; read without it by Active().
+inline std::atomic_uint32_t window_left{0};
+inline uint32_t session_lines = 0;
+inline uint64_t suppressed = 0;
+inline uint64_t windows = 0;
+inline uint64_t stale_serves = 0;
+inline uint32_t last_present_count = UINT32_MAX;
+inline int last_enabled = -1;
+inline uint64_t last_feature = 0;
+inline uint64_t last_live_use = 0;
+inline int64_t last_evaluate_ns = 0;
+inline int64_t last_summary_ns = 0;
+inline uint32_t last_subrect[7] = {UINT32_MAX};
+inline thread_local const char* serve_caller = "?";
+
+inline std::string Hex(uint64_t value) {
+  char text[24] = {};
+  snprintf(text, sizeof(text), "%llx", static_cast<unsigned long long>(value));
+  return text;
+}
+template <typename T>
+inline std::string Hex(T* pointer) {
+  return Hex(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(pointer)));
+}
+inline bool Active() {
+  return Enabled() && window_left.load(std::memory_order_relaxed) != 0;
+}
+// Caller holds prefg_diag::mutex.
+inline void OpenLocked(const std::string& why) {
+  if (session_lines >= kSessionLines) {
+    ++suppressed;
+    return;
+  }
+  ++windows;
+  window_left = kWindowLines;
+  ++session_lines;
+  Log(reshade::log::level::info,
+      "[prefg-diag] window " + std::to_string(windows) + " opens: " + why);
+}
+inline void Open(const std::string& why) {
+  if (!Enabled()) return;
+  std::scoped_lock lock(mutex);
+  OpenLocked(why);
+}
+inline void Line(const std::string& text) {
+  if (!Active()) return;
+  std::scoped_lock lock(mutex);
+  if (window_left == 0) return;
+  if (session_lines >= kSessionLines) {
+    ++suppressed;
+    return;
+  }
+  --window_left;
+  ++session_lines;
+  Log(reshade::log::level::info, "[prefg-diag] " + text);
+}
+inline void CheckLayer(uint32_t present_count, bool nr_enabled) {
+  if (!Enabled()) return;
+  std::scoped_lock lock(mutex);
+  const int on = nr_enabled ? 1 : 0;
+  if (present_count == last_present_count && on == last_enabled) return;
+  const bool first = last_present_count == UINT32_MAX;
+  const std::string why =
+      (first ? std::string("build unified2m-fix2-20261107 (use-only pre-present, every begun buffer"
+                           " submitted, subrect origins, lock-free readiness) active; ")
+             : std::string())
+      + "Present layers "
+      + (first ? std::string("?") : std::to_string(last_present_count)) + "->"
+      + std::to_string(present_count) + ", NR "
+      + (last_enabled < 0 ? std::string("?") : std::to_string(last_enabled)) + "->"
+      + std::to_string(on) + " (NRDiagPrePresent=" + (PrePresentAllowed() ? "1" : "0")
+      + " NRDiagInvalidateOnOff=" + (InvalidateOnOff() ? "1" : "0") + ")";
+  last_present_count = present_count;
+  last_enabled = on;
+  OpenLocked(why);
+}
+inline void NoteEvaluate(int64_t now_ns) {
+  if (!Enabled()) return;
+  std::scoped_lock lock(mutex);
+  const int64_t last = last_evaluate_ns;
+  last_evaluate_ns = now_ns;
+  if (last != 0 && now_ns - last > kEvaluateGapNs) {
+    OpenLocked("DLSS-G index-1 evaluates resumed after "
+               + std::to_string((now_ns - last) / 1'000'000) + " ms");
+  }
+}
+inline void NoteSubrect(const uint32_t (&subrect)[7]) {
+  if (!Enabled()) return;
+  std::scoped_lock lock(mutex);
+  if (std::equal(std::begin(subrect), std::end(subrect), std::begin(last_subrect))) return;
+  std::copy(std::begin(subrect), std::end(subrect), std::begin(last_subrect));
+  OpenLocked("DLSS-G subrects: Backbuffer (" + std::to_string(subrect[0]) + ","
+             + std::to_string(subrect[1]) + ")+" + std::to_string(subrect[2]) + "x"
+             + std::to_string(subrect[3]) + " HUDLess "
+             + (subrect[6] != 0 ? "(" + std::to_string(subrect[4]) + ","
+                                      + std::to_string(subrect[5]) + ")"
+                                : std::string("none")));
+}
+inline void NoteServe(uint64_t feature, uint64_t live_use) {
+  if (!Enabled()) return;
+  std::scoped_lock lock(mutex);
+  if (feature == last_feature && live_use == last_live_use) return;
+  const std::string why = "pre-FG stream objects changed: NR feature " + Hex(last_feature)
+                          + "->" + Hex(feature) + ", images use "
+                          + std::to_string(last_live_use) + "->" + std::to_string(live_use);
+  last_feature = feature;
+  last_live_use = live_use;
+  OpenLocked(why);
+}
+inline void NoteStaleServe(int64_t age_ms) {
+  if (!Enabled()) return;
+  std::scoped_lock lock(mutex);
+  ++stale_serves;
+  if (window_left == 0) {
+    OpenLocked("pre-present served from an input cache " + std::to_string(age_ms) + " ms old");
+  }
+}
+inline void MaybeSummary(int64_t now_ns) {
+  if (!Enabled()) return;
+  std::scoped_lock lock(mutex);
+  if (last_summary_ns == 0) {
+    last_summary_ns = now_ns;
+    return;
+  }
+  if (now_ns - last_summary_ns < kSummaryNs) return;
+  last_summary_ns = now_ns;
+  Log(reshade::log::level::info,
+      "[prefg-diag] summary: windows=" + std::to_string(windows) + " lines="
+          + std::to_string(session_lines) + " suppressed=" + std::to_string(suppressed)
+          + " stale_cache_serves=" + std::to_string(stale_serves)
+          + " NRDiagPrePresent=" + (PrePresentAllowed() ? "1" : "0")
+          + " NRDiagInvalidateOnOff=" + (InvalidateOnOff() ? "1" : "0"));
+}
+// One DLSS-G index-1 evaluate in RunPreFg, logged at scope exit.
+struct EvalRecord {
+  uint32_t index = 0;
+  VkImage back = nullptr;
+  VkImage hud = nullptr;
+  bool pending = false;
+  VkImage pending_image = nullptr;
+  const char* decision = "passthrough";
+  ~EvalRecord() {
+    if (index > 1 || !Active()) return;
+    try {
+      Line(std::string("evaluate back=") + Hex(back) + " hud=" + Hex(hud) + " pending="
+           + (pending ? "1(" + Hex(pending_image) + ")" : std::string("0"))
+           + " -> " + decision);
+    } catch (...) {
+    }
+  }
+};
+// One pre-present call in PrePresentNr, logged at scope exit.  The reason is
+// a literal plus an optional tag and number, put together only when a line is
+// written: an ordinary present allocates nothing here.
+struct PresentRecord {
+  uint32_t index = UINT32_MAX;
+  VkImage image = nullptr;
+  const char* list = "-";
+  int valid = -1;
+  uint32_t stable = 0;
+  int64_t age_ms = -1;
+  std::string cache;
+  const char* reason = "returned early";
+  const char* reason_tag = nullptr;  // " (<tag>)"
+  const char* reason_arg_name = nullptr;
+  int64_t reason_arg = 0;            // " (<name> <arg>)"
+  uint64_t semaphore = 0;
+  void Reason(const char* text, const char* tag = nullptr, const char* arg_name = nullptr, int64_t arg = 0) {
+    reason = text;
+    reason_tag = tag;
+    reason_arg_name = arg_name;
+    reason_arg = arg;
+  }
+  ~PresentRecord() {
+    if (!Active()) return;
+    try {
+      std::string why = reason;
+      if (reason_tag != nullptr) why += std::string(" (") + reason_tag + ")";
+      if (reason_arg_name != nullptr) why += std::string(" (") + reason_arg_name + " " + std::to_string(reason_arg) + ")";
+      Line("prepresent index=" + (index == UINT32_MAX ? std::string("-") : std::to_string(index))
+           + " image=" + Hex(image) + " list=" + list + " cache_valid=" + std::to_string(valid)
+           + " stable=" + std::to_string(stable) + " age_ms=" + std::to_string(age_ms) + " "
+           + cache + " semaphore=" + Hex(semaphore) + " -> " + why);
+    } catch (...) {
+    }
+  }
+};
+}  // namespace prefg_diag
 
 // Upscaled with the Present layers: the plan the DLSS evaluates run while the
 // fallback is active.  Only with no Upscaled layers of their own, so the
@@ -4365,6 +4930,7 @@ inline bool PreFgUpscaledPlan(stages::Plan* plan) {
                                 prepresent_last_ns.load(std::memory_order_relaxed));
   const bool silent = last == 0 || SteadyNowNs() - last > kPreFgSilentNs;
   if (silent && !prefg_upscaled_active.exchange(true, std::memory_order_relaxed)) {
+    prefg_fallback_enter_silent.fetch_add(1, std::memory_order_relaxed);
     RuntimeLock lock(runtime_mutex);
     prefg_clear_streak = 0;
     RetirePreFgStream();
@@ -4389,9 +4955,9 @@ inline bool PreFgUpscaledPlan(stages::Plan* plan) {
 // Caller holds the NGX turn and not runtime_mutex.  `attempted` says whether
 // an NR attempt (a `seen` unit) ran; `images_failed_out` that the owned
 // images could not be created (the caller's fallback accounting).
-inline NrDeclineReason ServePreFgFrame(VkCommandBuffer command_buffer, reshade::api::command_list* cmd,
-                                       reshade::api::device* api_device, const PreFgServe& s,
-                                       bool* attempted, bool* images_failed_out) {
+inline NrDeclineReason ServePreFgFrameImpl(VkCommandBuffer command_buffer, reshade::api::command_list* cmd,
+                                           reshade::api::device* api_device, const PreFgServe& s,
+                                           bool* attempted, bool* images_failed_out) {
   using namespace reshade::api;
   // This stream's NR runtime calls: the residency own class; its images
   // (output-sized, kept across NR resolutions) take the fixed class where
@@ -4403,11 +4969,18 @@ inline NrDeclineReason ServePreFgFrame(VkCommandBuffer command_buffer, reshade::
     // The stream's images, remade on a shape, format, HUD or device change
     // (the old set waits out its recorded uses in retired_prefg).
     PreFgImages& live = prefg.live;
-    if (live.device != nullptr
+    const bool shape_differs = live.device != nullptr
         && (live.device != api_device || live.width != s.width || live.height != s.height
-            || live.format != s.image_format || live.hud != s.with_hud)) {
-      RetirePreFgImages();
+            || live.format != s.image_format || live.hud != s.with_hud);
+    // The pre-present path neither retires nor creates them (prefg_use_only),
+    // and uses the stream only once the buffers that created it are proven
+    // complete (its lock-free readiness check may have read an older state):
+    // nothing is recorded yet, and DLSS-G's evaluate serves this frame.
+    if (prefg_use_only
+        && (live.device == nullptr || shape_differs || !RecordedUseComplete(prefg_creation_use))) {
+      return NrDeclineReason::kPreFgLeftToEvaluate;
     }
+    if (shape_differs) RetirePreFgImages();
     if (live.device == nullptr) {
       const residency::FixedScope fixed_allocations;
       bool made = true;
@@ -4447,6 +5020,8 @@ inline NrDeclineReason ServePreFgFrame(VkCommandBuffer command_buffer, reshade::
         const std::string vram = VramSummary(direct_device, false);
         if (!vram.empty()) text << ", vram=" << vram << " MiB";
         Log(reshade::log::level::info, text.str());
+        NotePreFgCreation(cmd, "pre-FG images " + std::to_string(s.width) + "x" + std::to_string(s.height)
+                                   + " (images use " + std::to_string(live.use_id) + ")");
       }
     }
   }
@@ -4607,12 +5182,13 @@ inline NrDeclineReason ServePreFgFrame(VkCommandBuffer command_buffer, reshade::
   } else {
     prefg_hud_absent.fetch_add(1, std::memory_order_relaxed);
   }
+  const bool hud_out = s.with_hud || s.refresh_hud;
   PreFgGameBarrier(command_buffer, s.back.view, s.back.layout, static_cast<VkImageLayout>(7));
-  if (s.with_hud) PreFgGameBarrier(command_buffer, s.hud.view, s.hud.layout, static_cast<VkImageLayout>(7));
+  if (hud_out) PreFgGameBarrier(command_buffer, s.hud.view, s.hud.layout, static_cast<VkImageLayout>(7));
   copy_out(s.with_hud ? kPreFgComposite : kPreFgWork, s.back);
-  if (s.with_hud) copy_out(kPreFgWork, s.hud);
+  if (hud_out) copy_out(kPreFgWork, s.hud);
   PreFgGameBarrier(command_buffer, s.back.view, static_cast<VkImageLayout>(7), s.back.layout);
-  if (s.with_hud) PreFgGameBarrier(command_buffer, s.hud.view, static_cast<VkImageLayout>(7), s.hud.layout);
+  if (hud_out) PreFgGameBarrier(command_buffer, s.hud.view, static_cast<VkImageLayout>(7), s.hud.layout);
   // Make the copies visible to what DLSS-G records next.
   {
     const resource none = {};
@@ -4633,6 +5209,62 @@ inline NrDeclineReason ServePreFgFrame(VkCommandBuffer command_buffer, reshade::
   return NrDeclineReason::kCount;
 }
 
+// The serve and, with the trace on (prefg_diag above), the identities it used.
+// Caller holds the NGX turn and not runtime_mutex, as for the Impl.  Trace
+// off: nothing more.  Trace on: the two identities that open a window, and
+// the line itself only while a window is open.
+inline NrDeclineReason ServePreFgFrame(VkCommandBuffer command_buffer, reshade::api::command_list* cmd,
+                                       reshade::api::device* api_device, const PreFgServe& s,
+                                       bool* attempted, bool* images_failed_out) {
+  const NrDeclineReason result =
+      ServePreFgFrameImpl(command_buffer, cmd, api_device, s, attempted, images_failed_out);
+  if (!prefg_diag::Enabled()) return result;
+  uint64_t nr_feature = 0;
+  uint64_t live_use = 0;
+  {
+    RuntimeLock lock(runtime_mutex);
+    live_use = prefg.live.use_id;
+    const auto found = features.find(prefg.Handle());
+    if (found != features.end()) {
+      nr_feature = static_cast<uint64_t>(reinterpret_cast<uintptr_t>(
+          found->second.stages[StageIndex(stages::Point::Present)].slots[0].handle));
+    }
+  }
+  prefg_diag::NoteServe(nr_feature, live_use);
+  if (!prefg_diag::Active()) return result;
+  std::ostringstream text;
+  {
+    RuntimeLock lock(runtime_mutex);
+    const PreFgImages& live = prefg.live;
+    text << "serve path=" << prefg_diag::serve_caller << " cb=" << prefg_diag::Hex(command_buffer)
+         << " back=" << prefg_diag::Hex(s.back.image.handle) << '@' << s.back.x << ',' << s.back.y
+         << '+' << s.width << 'x' << s.height
+         << " back_layout=" << static_cast<uint32_t>(s.back.layout)
+         << " hud=" << (s.with_hud ? prefg_diag::Hex(s.hud.image.handle) : std::string("-"))
+         << " work=" << prefg_diag::Hex(live.images[kPreFgWork].handle)
+         << " hud_orig=" << prefg_diag::Hex(live.images[kPreFgHudOriginal].handle)
+         << " back_orig=" << prefg_diag::Hex(live.images[kPreFgBackOriginal].handle)
+         << " composite=" << prefg_diag::Hex(live.images[kPreFgComposite].handle)
+         << " images_use=" << live.use_id;
+    const auto found = features.find(prefg.Handle());
+    if (found != features.end()) {
+      const auto& stage = found->second.stages[StageIndex(stages::Point::Present)];
+      text << " nr_feature=" << prefg_diag::Hex(stage.slots[0].handle) << " worksets=" << stage.worksets.size();
+      if (!stage.worksets.empty()) {
+        text << " ws" << stage.worksets.front().id
+             << " out=" << prefg_diag::Hex(stage.worksets.front().output);
+      }
+    }
+  }
+  text << " result="
+       << (result == NrDeclineReason::kCount
+               ? std::string("served")
+               : "declined:" + std::to_string(static_cast<uint32_t>(result)))
+       << " attempted=" << (*attempted ? 1 : 0) << " images_failed=" << (*images_failed_out ? 1 : 0);
+  prefg_diag::Line(text.str());
+  return result;
+}
+
 // Called by HookedEvaluate outside runtime_mutex, holding the NGX turn,
 // BEFORE DLSS-G's real evaluate, for every feature-11 evaluate.  `attempted`
 // says whether an NR attempt (a `seen` unit) ran; the return is its terminal.
@@ -4642,6 +5274,7 @@ inline NrDeclineReason RunPreFg(VkCommandBuffer command_buffer,
   *attempted = false;
   prefg_evaluates.fetch_add(1, std::memory_order_relaxed);
   if (stages::Snapshot().Count(stages::Point::Present) == 0) return NrDeclineReason::kCount;
+  const FrameCpuTimer cpu_timer(prefg_cpu);
   auto* const block = const_cast<NVSDK_NGX_Parameter*>(parameters);
   const auto resource_vk = [&](const char* name) -> NVSDK_NGX_Resource_VK* {
     void* pointer = nullptr;
@@ -4656,6 +5289,10 @@ inline NrDeclineReason RunPreFg(VkCommandBuffer command_buffer,
   NVSDK_NGX_Resource_VK* const backbuffer = resource_vk(NVSDK_NGX_DLSSG_Parameter_Backbuffer);
   if (backbuffer == nullptr) return NrDeclineReason::kCount;
   const uint32_t index = GetUInt(parameters, NVSDK_NGX_DLSSG_Parameter_MultiFrameIndex, 1);
+  prefg_diag::EvalRecord diag_eval;
+  diag_eval.index = index;
+  diag_eval.back = backbuffer->Resource.ImageViewInfo.Image;
+  if (index <= 1) prefg_diag::NoteEvaluate(SteadyNowNs());
   // Observe-only, once per session: what this title's DLSS-G evaluate carries.
   static bool probed = false;
   if (!std::exchange(probed, true)) {
@@ -4689,6 +5326,7 @@ inline NrDeclineReason RunPreFg(VkCommandBuffer command_buffer,
     return NrDeclineReason::kCount;
   }
   const auto fall_back = [&](uint32_t bit, const std::string& why) {
+    diag_eval.decision = "fallback";
     prefg_fallbacks.fetch_add(1, std::memory_order_relaxed);
     static uint32_t said = 0;
     if ((std::exchange(said, said | bit) & bit) == 0) {
@@ -4700,6 +5338,7 @@ inline NrDeclineReason RunPreFg(VkCommandBuffer command_buffer,
     prefg_clear_streak = 0;
     if (++prefg_miss_streak >= kPreFgMissFrames
         && !prefg_upscaled_active.exchange(true, std::memory_order_relaxed)) {
+      prefg_fallback_enter_unservable.fetch_add(1, std::memory_order_relaxed);
       RetirePreFgStream();
       if (prefg_episodes_logged++ < 16) {
         Log(reshade::log::level::warning,
@@ -4781,9 +5420,19 @@ inline NrDeclineReason RunPreFg(VkCommandBuffer command_buffer,
   }
   NVSDK_NGX_Resource_VK* const hudless_resource = resource_vk(NVSDK_NGX_DLSSG_Parameter_HUDLess);
   PreFgInput hud;
-  const bool with_hud = hudless_resource != nullptr
+  // A HUD-less frame of its own, composited, unless the bridge reports the
+  // game tags none: Streamline then fills DLSSG.HUDLess from the back buffer
+  // itself, so the composite would only return the NR result, and the
+  // pre-present path (which takes the HUD-less frame only when the game tags
+  // it) would find images of another shape and never serve
+  // (prepresent_hud_tagged).  That untagged HUD-less image still gets the NR
+  // result copied in (refresh_hud), so DLSS-G interpolates between two inputs
+  // that both carry NR, as when it was composited.
+  const bool hud_distinct = hudless_resource != nullptr
       && hudless_resource->Resource.ImageViewInfo.Image != backbuffer->Resource.ImageViewInfo.Image;
-  if (with_hud) {
+  const bool with_hud = hud_distinct && prepresent_hud_tagged.load(std::memory_order_relaxed) != 0;
+  const bool refresh_hud = hud_distinct && !with_hud;
+  if (hud_distinct) {
     if (!read_input(hudless_resource, "DLSSG.HUDLessSubrectBaseX", "DLSSG.HUDLessSubrectBaseY",
                     "DLSSG.HUDLessSubrectWidth", "DLSSG.HUDLessSubrectHeight", &hud)) {
       return fall_back(64, "its HUD-less frame is not a single-sample base-level colour image"
@@ -4797,6 +5446,11 @@ inline NrDeclineReason RunPreFg(VkCommandBuffer command_buffer,
   }
   const uint32_t width = back.width;
   const uint32_t height = back.height;
+  {
+    const uint32_t subrect[7] = {back.x, back.y, back.width, back.height,
+                                 with_hud ? hud.x : 0u, with_hud ? hud.y : 0u, with_hud ? 1u : 0u};
+    prefg_diag::NoteSubrect(subrect);
+  }
   // The guide contract, as present_path.hpp RunPresentPreFg derives it:
   // the motion subrect is the render grid, MvecScale in pixels of that grid
   // or normalized (NRPresentMVecUnits: an obvious pixel-sized pair selects
@@ -4836,10 +5490,45 @@ inline NrDeclineReason RunPreFg(VkCommandBuffer command_buffer,
         && c.depth.Resource.ImageViewInfo.Image == depth->Resource.ImageViewInfo.Image
         && c.with_hud == with_hud
         && (!with_hud || c.hud.Resource.ImageViewInfo.Image == hudless_resource->Resource.ImageViewInfo.Image)
-        && c.back_format == static_cast<uint32_t>(back.view.Format) && c.width == width && c.height == height;
+        && c.back_format == static_cast<uint32_t>(back.view.Format) && c.width == width && c.height == height
+        && c.back_x == back.x && c.back_y == back.y
+        && (!with_hud || (c.hud_x == hud.x && c.hud_y == hud.y));
+    // The subrects the pre-present path reads and writes at, as DLSS-G names
+    // them: one line per change (bounded), the count in prefg[subrect_changes=].
+    // Compared with the last ones seen, which outlive the cache: a DLSS-G
+    // release empties the cache, and a resolution change comes with one.
+    PreFgSubrectSeen& seen = prefg_subrect_seen;
+    const PreFgSubrectSeen now_seen = {true, back.x, back.y, width, height, with_hud,
+                                       with_hud ? hud.x : 0u, with_hud ? hud.y : 0u};
+    if (seen.valid && !(seen == now_seen)) {
+      ++prefg_subrect_changes;
+      if (prefg_subrect_logged < kSubrectLogCap) {
+        ++prefg_subrect_logged;
+        std::ostringstream text;
+        text << "Vulkan frame generation: DLSS-G subrects now Backbuffer (" << back.x << ',' << back.y << ")+"
+             << width << 'x' << height << " of " << back.view.Width << 'x' << back.view.Height
+             << ", HUD-less ";
+        if (with_hud) {
+          text << '(' << hud.x << ',' << hud.y << ")+" << hud.width << 'x' << hud.height;
+        } else {
+          text << "none";
+        }
+        text << " (was Backbuffer (" << seen.back_x << ',' << seen.back_y << ")+" << seen.width << 'x'
+             << seen.height << "); the pre-present path reads and writes at these origins";
+        Log(reshade::log::level::info, text.str());
+      }
+    }
+    seen = now_seen;
     c.stable = same ? c.stable + 1 : 1;
+    {
+      const int64_t now = SteadyNowNs();
+      if (c.valid && c.updated_ns != 0) {
+        const int64_t step = std::min<int64_t>(std::max<int64_t>(now - c.updated_ns, 0), 250'000'000);
+        c.interval_ns = c.interval_ns == 0 ? step : (c.interval_ns * 7 + step) / 8;
+      }
+      c.updated_ns = now;
+    }
     c.valid = true;
-    c.updated_ns = SteadyNowNs();
     c.motion = *motion;
     c.depth = *depth;
     if (with_hud) c.hud = *hudless_resource; else c.hud = {};
@@ -4859,6 +5548,10 @@ inline NrDeclineReason RunPreFg(VkCommandBuffer command_buffer,
     }
     c.width = width;
     c.height = height;
+    c.back_x = back.x;
+    c.back_y = back.y;
+    c.hud_x = with_hud ? hud.x : 0u;
+    c.hud_y = with_hud ? hud.y : 0u;
     c.input_width = input_width;
     c.input_height = input_height;
     c.mv_base_x = GetUInt(parameters, "DLSSG.MVecsSubrectBaseX");
@@ -4871,18 +5564,39 @@ inline NrDeclineReason RunPreFg(VkCommandBuffer command_buffer,
     c.reset = reset;
     c.pixels = pixels;
     c.units = units;
+    // The images named now, for the destroy_resource observer; a destroyed
+    // one named before is no longer in the cache.
+    {
+      const VkImage watched[kPreFgWatchedImages] = {
+          c.motion.Resource.ImageViewInfo.Image, c.depth.Resource.ImageViewInfo.Image,
+          with_hud ? c.hud.Resource.ImageViewInfo.Image : nullptr,
+          c.backbuffer_count > 0 ? c.backbuffers[0] : nullptr, c.backbuffer_count > 1 ? c.backbuffers[1] : nullptr,
+          c.backbuffer_count > 2 ? c.backbuffers[2] : nullptr, c.backbuffer_count > 3 ? c.backbuffers[3] : nullptr};
+      for (uint32_t i = 0; i < kPreFgWatchedImages; ++i) {
+        prefg_watched_images[i].store(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(watched[i])),
+                                      std::memory_order_relaxed);
+      }
+      prefg_inputs_destroyed.store(false, std::memory_order_release);
+    }
+    // The pre-present path's readiness for this shape (prefg_ready_key).
+    PublishPreFgReadiness(api_device, width, height, image_format, with_hud, create_flags);
     // The frame the pre-present path served records no NR here.  The
     // pre-present path only takes an image this ring named (above), so a
     // different Backbuffer means that frame was not served after all (run 1,
     // 2026-10-27: the loader's swap chain image is not what the game renders
     // into under Streamline); it is served here then.
     if (prepresent.pending) {
+      diag_eval.pending = true;
+      diag_eval.pending_image = prepresent.pending_image;
       prepresent.pending = false;
       if (prepresent.pending_image == back.view.Image) {
+        diag_eval.decision = "skip (the pre-present path served this image)";
         prepresent_skipped_evaluates.fetch_add(1, std::memory_order_relaxed);
         prefg_miss_streak = 0;
         return NrDeclineReason::kCount;
       }
+      diag_eval.decision = "mismatch with the pre-present image";
+      prefg_diag::Open("DLSS-G Backbuffer differs from the image the pre-present path served");
       if (prepresent_mismatches.fetch_add(1, std::memory_order_relaxed) == 0) {
         Log(reshade::log::level::warning,
             "Vulkan frame generation: DLSS-G's Backbuffer is not the image the pre-present NR"
@@ -4898,8 +5612,10 @@ inline NrDeclineReason RunPreFg(VkCommandBuffer command_buffer,
     RuntimeLock lock(runtime_mutex);
     prefg_miss_streak = 0;
     if (prefg_upscaled_active.load(std::memory_order_relaxed)) {
+      diag_eval.decision = "upscaled fallback active (serves none)";
       if (++prefg_clear_streak >= kPreFgMissFrames) {
         prefg_upscaled_active.store(false, std::memory_order_relaxed);
+        prefg_fallback_exits.fetch_add(1, std::memory_order_relaxed);
         prefg_clear_streak = 0;
         if (prefg_episodes_logged++ < 16) {
           Log(reshade::log::level::info,
@@ -4914,6 +5630,7 @@ inline NrDeclineReason RunPreFg(VkCommandBuffer command_buffer,
   serve.back = back;
   serve.hud = hud;
   serve.with_hud = with_hud;
+  serve.refresh_hud = refresh_hud;
   serve.width = width;
   serve.height = height;
   serve.image_format = image_format;
@@ -4932,7 +5649,10 @@ inline NrDeclineReason RunPreFg(VkCommandBuffer command_buffer,
   serve.pixels = pixels;
   serve.units = units;
   bool images_failed = false;
+  prefg_diag::serve_caller = "evaluate";
+  diag_eval.hud = with_hud ? hudless_resource->Resource.ImageViewInfo.Image : nullptr;
   const NrDeclineReason served = ServePreFgFrame(command_buffer, cmd, api_device, serve, attempted, &images_failed);
+  diag_eval.decision = served == NrDeclineReason::kCount ? "served here" : "declined here";
   if (images_failed) {
     return fall_back(512, "its images could not be created (format "
                               + std::to_string(static_cast<uint32_t>(image_format)) + ")");
@@ -5034,7 +5754,8 @@ inline bool EnsurePrePresent(VkDevice device, uint32_t family) {
       "Vulkan pre-present NR ready: " + std::to_string(kPrePresentSlots)
           + " command buffers on the game's present queue (family " + std::to_string(family)
           + "); the Present layers run before each frame reaches Streamline, so the"
-            " frame-generation group keeps its whole interval for the generated frames");
+            " frame-generation group keeps its whole interval for the generated frames"
+            " (build unified2m-fix2-20261107: use-only, lock-free readiness)");
   return true;
 }
 
@@ -5047,8 +5768,8 @@ inline bool EnsurePrePresent(VkDevice device, uint32_t family) {
 // never prove its uses on the other slots complete, and both paths stayed
 // in replacement_wait - NR off for 5-7 s after each change, until the user
 // switched NR or the layer off and on (2026-10-27 runs 1 and 3).  An empty
-// recording on each slot whose work is complete, or that was begun and
-// abandoned, releases them; no submit.
+// recording on each slot whose submitted work is complete releases them; no
+// submit.  (Every buffer PrePresentNr begins is submitted, served or not.)
 inline void PrePresentReleaseProofs() {
   PrePresentState& p = prepresent;
   if (p.pool == nullptr) return;
@@ -5067,9 +5788,11 @@ inline void PrePresentReleaseProofs() {
 
 // The bridge's detour on the interposer's vkQueuePresentKHR, before the
 // original: `info` is the game's present.  Returns 1 with the semaphore the
-// present must wait on instead of its own list (NR recorded and submitted
-// on `queue`), else 0 and the present goes unchanged.  flags bit 0: the game
-// tags a HUD-less frame itself (the bridge's slSetTag observers).
+// present must wait on instead of its own list (a buffer was submitted on
+// `queue` after the present's waits: NR served the frame, or the frame was
+// left unchanged for DLSS-G's evaluate), else 0 and the present goes
+// unchanged.  flags bit 0: the game tags a HUD-less frame itself (the
+// bridge's slSetTag observers).
 inline uint32_t PrePresentNr(VkDevice device, VkQueue queue, uint32_t family, const VkPresentInfoKHR* info,
                              uint32_t flags, uint64_t* out_wait_semaphore) {
   using namespace reshade::api;
@@ -5079,6 +5802,17 @@ inline uint32_t PrePresentNr(VkDevice device, VkQueue queue, uint32_t family, co
     return 0;
   }
   prepresent_calls.fetch_add(1, std::memory_order_relaxed);
+  prepresent_hud_tagged.store((flags & 1u) != 0 ? 1 : 0, std::memory_order_relaxed);
+  if (prefg_diag::Enabled()) {
+    prefg_diag::CheckLayer(stages::Snapshot().Count(stages::Point::Present),
+                           enabled.load(std::memory_order_relaxed));
+    prefg_diag::MaybeSummary(SteadyNowNs());
+  }
+  // NRDiagPrePresent=0: every frame stays with DLSS-G's evaluate (A/B).
+  if (!prefg_diag::PrePresentAllowed()) return 0;
+  // This call's CPU time with NR and the Present layers on, the proof release
+  // below included (vk prepresent_cpu[]); started after the check for them.
+  std::optional<FrameCpuTimer> cpu_timer;
   // Every return that serves no frame releases the slots' proofs
   // (PrePresentReleaseProofs): an idle present as much as a declined one.
   bool served = false;
@@ -5088,7 +5822,22 @@ inline uint32_t PrePresentNr(VkDevice device, VkQueue queue, uint32_t family, co
   } const proof_release{served};
   if (!enabled.load(std::memory_order_relaxed) || stages::Snapshot().Count(stages::Point::Present) == 0
       || prefg_upscaled_active.load(std::memory_order_relaxed) || NrYieldsToForeign()) {
+    // NRDiagInvalidateOnOff=1 (A/B): while the Present layer or NR is off the
+    // cache RunPreFg would refresh is dropped, so a re-enable waits for fresh
+    // evaluates instead of serving from the cache frozen at the switch-off.
+    if (prefg_diag::InvalidateOnOff()
+        && (!enabled.load(std::memory_order_relaxed)
+            || stages::Snapshot().Count(stages::Point::Present) == 0)) {
+      RuntimeLock lock(runtime_mutex);
+      prefg_inputs.valid = false;
+      prefg_inputs.stable = 0;
+    }
     return 0;
+  }
+  cpu_timer.emplace(prepresent_cpu);
+  prefg_diag::PresentRecord diag_present;
+  if (info->swapchainCount == 1 && info->pImageIndices != nullptr) {
+    diag_present.index = info->pImageIndices[0];
   }
   // The barriers this records and ProcessNr's layout proof need the native
   // barrier observers (RunPreFg's fallback 8 names the same condition).
@@ -5107,8 +5856,25 @@ inline uint32_t PrePresentNr(VkDevice device, VkQueue queue, uint32_t family, co
     RuntimeLock lock(runtime_mutex);
     inputs = prefg_inputs;
   }
+  diag_present.valid = inputs.valid ? 1 : 0;
+  diag_present.stable = inputs.stable;
+  diag_present.age_ms = inputs.updated_ns != 0 ? (SteadyNowNs() - inputs.updated_ns) / 1'000'000 : -1;
+  if (prefg_diag::Active()) {
+    std::string ring;
+    for (uint32_t i = 0; i < inputs.backbuffer_count && i < 4; ++i) {
+      ring += (i != 0 ? "," : "") + prefg_diag::Hex(inputs.backbuffers[i]);
+    }
+    diag_present.cache = "cache[mv=" + prefg_diag::Hex(inputs.motion.Resource.ImageViewInfo.Image)
+                         + " depth=" + prefg_diag::Hex(inputs.depth.Resource.ImageViewInfo.Image)
+                         + " hud=" + prefg_diag::Hex(inputs.hud.Resource.ImageViewInfo.Image)
+                         + " ring=" + ring + " size=" + std::to_string(inputs.width) + "x"
+                         + std::to_string(inputs.height) + " reset=" + std::to_string(inputs.reset)
+                         + " hud_flag=" + std::to_string(flags & 1u) + "]";
+  }
   if (!inputs.valid || inputs.stable < kPrePresentStableEvaluates
-      || SteadyNowNs() - inputs.updated_ns > kPrePresentInputsFreshNs || inputs.backbuffer_count == 0) {
+      || SteadyNowNs() - inputs.updated_ns > PreFgInputsFreshNs(inputs) || inputs.backbuffer_count == 0
+      || prefg_inputs_destroyed.load(std::memory_order_acquire)) {
+    diag_present.reason = "no_inputs (left to the evaluate path)";
     prepresent_no_inputs.fetch_add(1, std::memory_order_relaxed);
     return 0;
   }
@@ -5158,12 +5924,14 @@ inline uint32_t PrePresentNr(VkDevice device, VkQueue queue, uint32_t family, co
     RuntimeLock lock(runtime_mutex);
     prefg_inputs.backbuffer_count = 0;
     prefg_inputs.stable = 0;
+    diag_present.reason = "swap chain changed (ring forgotten)";
     prepresent_no_inputs.fetch_add(1, std::memory_order_relaxed);
     return 0;
   }
   if (p.swapchain != swapchain || !pick(&image)) {
     read_images();
     if (!pick(&image)) {
+      diag_present.reason = "not_backbuffer (left to the evaluate path)";
       prepresent_not_backbuffer.fetch_add(1, std::memory_order_relaxed);
       static std::atomic_bool logged{false};
       if (!logged.exchange(true)) {
@@ -5181,50 +5949,27 @@ inline uint32_t PrePresentNr(VkDevice device, VkQueue queue, uint32_t family, co
       return 0;
     }
   }
+  diag_present.image = image;
+  diag_present.list = index < p.images.size() && p.images[index] == image ? "game" : "loader";
+  diag_present.reason = "declined before recording";
+  if ((flags & 1u) != 0) prepresent_hud_flag.fetch_add(1, std::memory_order_relaxed);
   resource_desc desc = api_device->get_resource_desc({reinterpret_cast<uint64_t>(image)});
   const format image_format = PreFgFormat(inputs.back_format);
   if (desc.type != resource_type::texture_2d || desc.texture.samples != 1 || image_format == format::unknown
       || format_to_typeless(desc.texture.format) != format_to_typeless(image_format)
-      || desc.texture.width < inputs.width
-      || desc.texture.height < inputs.height || (desc.usage & resource_usage::copy_source) == 0
+      || (desc.usage & resource_usage::copy_source) == 0
       || (desc.usage & resource_usage::copy_dest) == 0) {
     prepresent_declines.fetch_add(1, std::memory_order_relaxed);
     return 0;
   }
-  // The slot: its last submission complete, its buffer reset and begun.
-  PrePresentSlot& slot = p.slots[p.next % kPrePresentSlots];
-  if (slot.submitted) {
-    if (p.wait_fences(device, 1, &slot.fence, 1u, 500'000'000ull) != 0) {
-      prepresent_declines.fetch_add(1, std::memory_order_relaxed);
-      return 0;
-    }
-    slot.submitted = false;
-  }
-  if (p.reset_fences(device, 1, &slot.fence) != 0) return 0;
-  // VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT.  Begun through the loader,
-  // so ReShade's layer learns the recording (OnResetCommandList).
-  const VkCommandBufferBeginInfo begin_info = {static_cast<VkStructureType>(42), nullptr, 0x1u, nullptr};
-  if (p.begin(slot.cb, &begin_info) != 0) return 0;
-  slot.recorded = true;
-  command_list* cmd = nullptr;
-  {
-    std::shared_lock lock(command_lists_mutex);
-    const auto found = command_lists.find(slot.cb);
-    if (found != command_lists.end()) cmd = found->second.list;
-  }
-  const auto abandon = [&]() {
-    p.end(slot.cb);
-    prepresent_declines.fetch_add(1, std::memory_order_relaxed);
-    return 0u;
-  };
-  if (cmd == nullptr || cmd->get_device() != api_device) {
-    static std::atomic_bool logged{false};
-    if (!logged.exchange(true)) {
-      Log(reshade::log::level::warning,
-          "Vulkan pre-present NR: ReShade did not register this stream's command buffer"
-          " (no reset_command_list); the Present layers keep running inside DLSS-G's evaluate");
-    }
-    return abandon();
+  // The frame is the subrect DLSS-G named, at its origin: a game below the
+  // display's resolution in fullscreen presents a display-sized image with
+  // the frame inside it (DLSSG.BackbufferSubrectBaseX/Y, kept by RunPreFg).
+  if (inputs.back_x > desc.texture.width || inputs.width > desc.texture.width - inputs.back_x
+      || inputs.back_y > desc.texture.height || inputs.height > desc.texture.height - inputs.back_y) {
+    prepresent_yields[kYieldOrigin].fetch_add(1, std::memory_order_relaxed);
+    diag_present.reason = "subrect outside the presented image (left to the evaluate path)";
+    return 0;
   }
   PreFgServe serve;
   serve.back.view = {nullptr, image, {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1},
@@ -5232,8 +5977,8 @@ inline uint32_t PrePresentNr(VkDevice device, VkQueue queue, uint32_t family, co
   serve.back.image = {reinterpret_cast<uint64_t>(image)};
   serve.back.desc = desc;
   serve.back.subresource = 0;
-  serve.back.x = 0;
-  serve.back.y = 0;
+  serve.back.x = inputs.back_x;
+  serve.back.y = inputs.back_y;
   serve.back.width = inputs.width;
   serve.back.height = inputs.height;
   serve.back.layout = kLayoutPresentSrc;
@@ -5251,12 +5996,17 @@ inline uint32_t PrePresentNr(VkDevice device, VkQueue queue, uint32_t family, co
     serve.hud.subresource = serve.hud.view.SubresourceRange.baseMipLevel
         + serve.hud.view.SubresourceRange.baseArrayLayer
               * std::max(1u, static_cast<uint32_t>(serve.hud.desc.texture.levels));
+    serve.hud.x = inputs.hud_x;
+    serve.hud.y = inputs.hud_y;
     serve.hud.width = inputs.width;
     serve.hud.height = inputs.height;
     serve.hud.layout = kLayoutGeneral;
     if (serve.hud.desc.type != resource_type::texture_2d
         || format_to_typeless(serve.hud.desc.texture.format) != format_to_typeless(image_format)
-        || serve.hud.desc.texture.width < inputs.width || serve.hud.desc.texture.height < inputs.height) {
+        || inputs.hud_x > serve.hud.desc.texture.width
+        || inputs.width > serve.hud.desc.texture.width - inputs.hud_x
+        || inputs.hud_y > serve.hud.desc.texture.height
+        || inputs.height > serve.hud.desc.texture.height - inputs.hud_y) {
       serve.with_hud = false;
     }
   }
@@ -5277,44 +6027,166 @@ inline uint32_t PrePresentNr(VkDevice device, VkQueue queue, uint32_t family, co
   serve.reset = inputs.reset;
   serve.pixels = inputs.pixels;
   serve.units = inputs.units;
+  // Use only (see prefg_use_only): serve only a stream DLSS-G's evaluate
+  // created and the GPU proved, else leave this frame to that evaluate before
+  // anything is recorded.  The readiness DLSS-G's evaluate published for this
+  // shape, read without runtime_mutex (prefg_ready_key); the creation proof
+  // asked of the recorded-use tracker only until it held once.  The serve
+  // checks both again under runtime_mutex (ServePreFgFrameImpl, ProcessNr's
+  // use-only mode), so a state changed since costs one unchanged submit.
+  {
+    if (prefg_takeover_pending.load(std::memory_order_relaxed)) {
+      prefg_takeover_presents.fetch_add(1, std::memory_order_relaxed);
+    }
+    const uint32_t stack =
+        std::min(stages::Snapshot().Count(stages::Point::Present), kMaxNrPasses);
+    const uint64_t key = PreFgReadyKey(api_device, serve.width, serve.height,
+                                       static_cast<uint32_t>(serve.image_format), serve.with_hud,
+                                       serve.create_flags,
+                                       configuration_generation.load(std::memory_order_relaxed), stack);
+    const uint64_t ready = prefg_ready_key.load(std::memory_order_acquire);
+    uint32_t blocker = kYieldCount;
+    if (ready != key) {
+      blocker = ready == 0 ? prefg_ready_blocker.load(std::memory_order_relaxed) : kYieldMismatch;
+      if (blocker >= kYieldCount) blocker = kYieldMismatch;
+    } else {
+      const uint64_t creation = prefg_creation_use_published.load(std::memory_order_acquire);
+      if (creation != p.proven_creation_use) {
+        if (RecordedUseComplete(creation)) {
+          p.proven_creation_use = creation;
+        } else {
+          blocker = kYieldProof;
+        }
+      }
+    }
+    if (blocker != kYieldCount) {
+      prepresent_yields[blocker].fetch_add(1, std::memory_order_relaxed);
+      diag_present.Reason("left to the evaluate path before recording", kPreFgYieldTags[blocker]);
+      return 0;
+    }
+  }
+  // The slot: its last submission complete, its buffer reset and begun.
+  PrePresentSlot& slot = p.slots[p.next % kPrePresentSlots];
+  if (slot.submitted) {
+    if (p.wait_fences(device, 1, &slot.fence, 1u, 500'000'000ull) != 0) {
+      prepresent_declines.fetch_add(1, std::memory_order_relaxed);
+      return 0;
+    }
+    slot.submitted = false;
+  }
+  if (p.reset_fences(device, 1, &slot.fence) != 0) return 0;
+  // VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT.  Begun through the loader,
+  // so ReShade's layer learns the recording (OnResetCommandList).
+  const VkCommandBufferBeginInfo begin_info = {static_cast<VkStructureType>(42), nullptr, 0x1u, nullptr};
+  if (p.begin(slot.cb, &begin_info) != 0) return 0;
+  slot.recorded = true;
+  // From here every exit submits the buffer: the CPU side keeps what a
+  // recording did to this stream's objects (layouts, history, the frame's
+  // NR state), so the GPU must run it too.  A frame not served is submitted
+  // unchanged (the copies back are recorded only after NR succeeded, and the
+  // barriers on the game's images come in pairs) and the evaluate that
+  // follows serves it.  A buffer that cannot run takes the pre-FG images
+  // whose layouts it recorded with it, and this path stands down.
+  const auto stand_down = [&](const char* what) {
+    static std::atomic_bool logged{false};
+    if (!logged.exchange(true)) {
+      Log(reshade::log::level::warning,
+          std::string("Vulkan pre-present NR: ") + what
+              + "; the Present layers keep running inside DLSS-G's evaluate");
+    }
+    p.failed = true;
+    prepresent_declines.fetch_add(1, std::memory_order_relaxed);
+    RuntimeLock lock(runtime_mutex);
+    RetirePreFgImages();
+  };
+  const auto submit = [&]() -> bool {
+    if (p.end(slot.cb) != 0) {
+      stand_down("vkEndCommandBuffer failed");
+      return false;
+    }
+    // After the present's own waits (the frame's rendering), signalling the
+    // slot's semaphore the present waits on instead.
+    VkPipelineStageFlags wait_stages[8];
+    for (uint32_t i = 0; i < info->waitSemaphoreCount; ++i) wait_stages[i] = 0x10000u;  // ALL_COMMANDS
+    const VkSubmitInfo submit_info = {static_cast<VkStructureType>(4), nullptr,
+                                      info->waitSemaphoreCount, info->pWaitSemaphores, wait_stages,
+                                      1, &slot.cb, 1, &slot.semaphore};
+    if (p.submit(queue, 1, &submit_info, slot.fence) != 0) {
+      stand_down("vkQueueSubmit failed");
+      return false;
+    }
+    slot.submitted = true;
+    ++p.next;
+    diag_present.semaphore = static_cast<uint64_t>(reinterpret_cast<uintptr_t>(slot.semaphore));
+    *out_wait_semaphore = reinterpret_cast<uint64_t>(slot.semaphore);
+    return true;
+  };
+  command_list* cmd = nullptr;
+  {
+    std::shared_lock lock(command_lists_mutex);
+    const auto found = command_lists.find(slot.cb);
+    if (found != command_lists.end()) cmd = found->second.list;
+  }
+  if (cmd == nullptr || cmd->get_device() != api_device) {
+    diag_present.reason = "command buffer unknown to ReShade (nothing recorded; submitted)";
+    const bool ok = submit();
+    p.failed = true;
+    prepresent_declines.fetch_add(1, std::memory_order_relaxed);
+    Log(reshade::log::level::warning,
+        "Vulkan pre-present NR: ReShade did not register this stream's command buffer"
+        " (no reset_command_list); the Present layers keep running inside DLSS-G's evaluate");
+    return ok ? 1u : 0u;
+  }
   bool attempted = false;
   bool images_failed = false;
   NrDeclineReason decline = NrDeclineReason::kMalformedEvaluate;
   {
     const ngx_serial::Call ngx_turn;
+    prefg_diag::serve_caller = "prepresent";
+    struct UseOnlyScope {
+      UseOnlyScope() { prefg_use_only = true; }
+      ~UseOnlyScope() { prefg_use_only = false; }
+    } const use_only_scope;
     GuardHook([&] { decline = ServePreFgFrame(slot.cb, cmd, api_device, serve, &attempted, &images_failed); });
   }
-  if (decline != NrDeclineReason::kCount) return abandon();
-  if (p.end(slot.cb) != 0) {
+  if (decline != NrDeclineReason::kCount) {
+    diag_present.Reason("end or submit failed (frame not served)", nullptr, "decline",
+                        static_cast<int64_t>(decline));
+    if (!submit()) return 0;
     prepresent_declines.fetch_add(1, std::memory_order_relaxed);
-    return 0;
-  }
-  // Submit: after the present's own waits (the frame's rendering), signalling
-  // the slot's semaphore the present waits on instead.
-  VkPipelineStageFlags wait_stages[8];
-  for (uint32_t i = 0; i < info->waitSemaphoreCount; ++i) wait_stages[i] = 0x10000u;  // ALL_COMMANDS
-  const VkSubmitInfo submit = {static_cast<VkStructureType>(4), nullptr,
-                               info->waitSemaphoreCount, info->pWaitSemaphores, wait_stages,
-                               1, &slot.cb, 1, &slot.semaphore};
-  if (p.submit(queue, 1, &submit, slot.fence) != 0) {
-    static std::atomic_bool logged{false};
-    if (!logged.exchange(true)) {
-      Log(reshade::log::level::warning,
-          "Vulkan pre-present NR: vkQueueSubmit failed; the Present layers keep running inside"
-          " DLSS-G's evaluate");
+    prepresent_unserved_total.fetch_add(1, std::memory_order_relaxed);
+    if (static_cast<size_t>(decline) < static_cast<size_t>(NrDeclineReason::kCount)) {
+      prepresent_unserved[static_cast<size_t>(decline)].fetch_add(1, std::memory_order_relaxed);
     }
-    p.failed = true;
-    return 0;
+    // The attempt is accounted (an ineligible terminal): the evaluate that
+    // follows serves the frame and counts its own.
+    if (attempted && decline == NrDeclineReason::kPreFgLeftToEvaluate) CountNrDecline(decline);
+    diag_present.Reason("serve declined, submitted unchanged; the evaluate path serves this frame", nullptr,
+                        "decline", static_cast<int64_t>(decline));
+    return 1;
   }
-  slot.submitted = true;
+  diag_present.reason = "end or submit failed";
+  if (!submit()) return 0;
   served = true;
-  ++p.next;
   {
     RuntimeLock lock(runtime_mutex);
     p.pending_image = image;
     p.pending = true;
+    if (prefg_takeover_pending.exchange(false, std::memory_order_relaxed)) {
+      const int64_t ms = (SteadyNowNs() - prefg_creation_ns) / 1'000'000;
+      const uint64_t presents = prefg_takeover_presents.load(std::memory_order_relaxed);
+      prepresent_takeovers.fetch_add(1, std::memory_order_relaxed);
+      prepresent_takeover_presents_last.store(presents, std::memory_order_relaxed);
+      prepresent_takeover_ms_last.store(ms, std::memory_order_relaxed);
+      LogPreFgLifecycle("the pre-present path serves again, " + std::to_string(presents)
+                        + " presents and " + std::to_string(ms)
+                        + " ms after the last creation (its command buffers proven complete)");
+    }
   }
   prepresent_last_ns.store(SteadyNowNs(), std::memory_order_relaxed);
+  diag_present.Reason("served on the present queue", nullptr, "slot",
+                      static_cast<int64_t>((p.next - 1) % kPrePresentSlots));
+  if (diag_present.age_ms > prefg_diag::kStaleCacheMs) prefg_diag::NoteStaleServe(diag_present.age_ms);
   if (prepresent_frames.fetch_add(1, std::memory_order_relaxed) == 0) {
     Log(reshade::log::level::info,
         std::string("Vulkan pre-present NR: the Present layers now run on the game's present queue before"
@@ -5322,7 +6194,6 @@ inline uint32_t PrePresentNr(VkDevice device, VkQueue queue, uint32_t family, co
             + (serve.with_hud ? "HUD-less frame + composite" : "back buffer only")
             + "); DLSS-G's evaluate of the same frame records no NR (vk prepresent[frames=])");
   }
-  *out_wait_semaphore = reinterpret_cast<uint64_t>(slot.semaphore);
   return 1;
 }
 
@@ -5938,6 +6809,8 @@ inline void OnInitDevice(reshade::api::device* device) {
     reshade::register_event<reshade::addon_event::end_render_pass>(OnEndTrackedRenderPass);
     reshade::register_event<reshade::addon_event::execute_secondary_command_list>(
         OnExecuteSecondaryImageStates);
+    // The pre-present input cache's images (OnDestroyResourceWatched).
+    reshade::register_event<reshade::addon_event::destroy_resource>(OnDestroyResourceWatched);
   }
   // The compute bind-point shadow (RestoreComputeState), only while the
   // restore is on and only once a Vulkan device exists: a D3D12 game's
@@ -5961,6 +6834,7 @@ inline void UnregisterStateEvents() {
     reshade::unregister_event<reshade::addon_event::end_render_pass>(OnEndTrackedRenderPass);
     reshade::unregister_event<reshade::addon_event::execute_secondary_command_list>(
         OnExecuteSecondaryImageStates);
+    reshade::unregister_event<reshade::addon_event::destroy_resource>(OnDestroyResourceWatched);
   }
   if (!state_events_registered.exchange(false)) return;
   reshade::unregister_event<reshade::addon_event::init_pipeline_layout>(OnInitPipelineLayout);
@@ -6011,7 +6885,12 @@ inline std::string Telemetry() {
         << " later_index=" << prefg_index_skipped.load(std::memory_order_relaxed)
         << " upscaled=" << prefg_upscaled_evaluates.load(std::memory_order_relaxed)
         << " upscaled_active=" << (prefg_upscaled_active.load(std::memory_order_relaxed) ? 1 : 0)
+        << " upscaled_enter_silent=" << prefg_fallback_enter_silent.load(std::memory_order_relaxed)
+        << " upscaled_enter_unservable=" << prefg_fallback_enter_unservable.load(std::memory_order_relaxed)
+        << " upscaled_exit=" << prefg_fallback_exits.load(std::memory_order_relaxed)
         << " retired_images=" << retired_prefg.size()
+        << " created=" << prefg_creations
+        << " subrect_changes=" << prefg_subrect_changes
         << "]";
   }
   // The pre-present path (PrePresentNr), stated once the bridge handed a present here.
@@ -6025,8 +6904,46 @@ inline std::string Telemetry() {
         << " not_backbuffer=" << prepresent_not_backbuffer.load(std::memory_order_relaxed)
         << " ready=" << (prepresent.pool != nullptr ? 1 : 0)
         << " failed=" << (prepresent.failed ? 1 : 0)
+        << " hud_flag=" << prepresent_hud_flag.load(std::memory_order_relaxed);
+    uint64_t yields = 0;
+    for (const auto& count : prepresent_yields) yields += count.load(std::memory_order_relaxed);
+    out << " yielded=" << yields;
+    if (yields != 0) {
+      out << '(';
+      bool first = true;
+      for (uint32_t i = 0; i < kYieldCount; ++i) {
+        const uint64_t count = prepresent_yields[i].load(std::memory_order_relaxed);
+        if (count == 0) continue;
+        out << (first ? "" : ",") << kPreFgYieldTags[i] << ':' << count;
+        first = false;
+      }
+      out << ')';
+    }
+    const uint64_t unserved = prepresent_unserved_total.load(std::memory_order_relaxed);
+    out << " unserved_submits=" << unserved;
+    if (unserved != 0) {
+      out << '(';
+      bool first = true;
+      for (size_t i = 0; i < static_cast<size_t>(NrDeclineReason::kCount); ++i) {
+        const uint64_t count = prepresent_unserved[i].load(std::memory_order_relaxed);
+        if (count == 0) continue;
+        out << (first ? "" : ",") << kNrDeclineTags[i] << ':' << count;
+        first = false;
+      }
+      out << ')';
+    }
+    out << " takeovers=" << prepresent_takeovers.load(std::memory_order_relaxed)
+        << " takeover_last=" << prepresent_takeover_presents_last.load(std::memory_order_relaxed)
+        << "presents/" << prepresent_takeover_ms_last.load(std::memory_order_relaxed) << "ms"
+        << " lifecycle_suppressed=" << prefg_lifecycle_suppressed
+        << " hud_tagged=" << prepresent_hud_tagged.load(std::memory_order_relaxed)
+        << " fresh_ms=" << PreFgInputsFreshNs(prefg_inputs) / 1'000'000
+        << " guides_destroyed=" << prefg_inputs_destroyed_count.load(std::memory_order_relaxed)
         << "]";
   }
+  // Frame-path CPU time over the window since the last telemetry line.
+  if (prefg_evaluates.load(std::memory_order_relaxed) != 0) out << prefg_cpu.TakeReport("prefg_cpu");
+  if (prepresent_calls.load(std::memory_order_relaxed) != 0) out << prepresent_cpu.TakeReport("prepresent_cpu");
   return out.str();
 }
 

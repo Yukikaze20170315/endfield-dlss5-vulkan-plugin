@@ -151,6 +151,10 @@ class State {
   static inline thread_local std::uint32_t depth_ = 0;
 };
 
+// A frame-path timer's sum of this thread's runtime_mutex waits (vulkan_path
+// FrameCpuTimer), or null: only blocked acquisitions add to it.
+inline thread_local std::uint64_t* runtime_wait_sink = nullptr;
+
 inline void NoteWait(std::chrono::steady_clock::time_point started,
                      std::atomic_uint64_t* blocked = &runtime_lock_contended,
                      std::atomic_uint64_t* wait_max_ns =
@@ -159,6 +163,9 @@ inline void NoteWait(std::chrono::steady_clock::time_point started,
                           std::chrono::steady_clock::now() - started)
                           .count();
   const auto ns = waited > 0 ? static_cast<std::uint64_t>(waited) : 0ull;
+  if (blocked == &runtime_lock_contended && runtime_wait_sink != nullptr) {
+    *runtime_wait_sink += ns;
+  }
   blocked->fetch_add(1, std::memory_order_relaxed);
   std::uint64_t seen = wait_max_ns->load(std::memory_order_relaxed);
   while (ns > seen

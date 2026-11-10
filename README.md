@@ -1,8 +1,8 @@
-# Endfield DLSS 5 Vulkan plugin — release unified-20261103l
+# Endfield DLSS 5 Vulkan plugin — release unified-20261107m
 
-Release date: 2026-11-05. This release replaces `unified-20261015q` (2026-10-19). The repository was renamed from `dlss5-vulkan-fg-relay` to `endfield-dlss5-vulkan-plugin`; old links are redirected by GitHub. The previous README is kept at [docs/history/README-unified-20261015q.md](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/docs/history/README-unified-20261015q.md).
+Release date: 2026-11-10 (the package was built on 2026-11-07). This release replaces `unified-20261103l` (2026-11-05). Compared with it, only the Generic NR add-on (`renodx-dlss5.addon64`) and the usage document in the package changed; see "What is new since unified-20261103l" below. The repository was renamed from `dlss5-vulkan-fg-relay` to `endfield-dlss5-vulkan-plugin` on 2026-11-05; old links are redirected by GitHub. The README of the earlier release `unified-20261015q` is kept at [docs/history/README-unified-20261015q.md](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/docs/history/README-unified-20261015q.md).
 
-发布日期：2026-11-05。本次发布取代 2026-10-19 的 `unified-20261015q`。仓库已由 `dlss5-vulkan-fg-relay` 改名为 `endfield-dlss5-vulkan-plugin`，旧链接会被 GitHub 自动跳转。上一版 README 保留在 [docs/history/README-unified-20261015q.md](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/docs/history/README-unified-20261015q.md)。
+发布日期：2026-11-10（成品包构建于 2026-11-07）。本次发布取代 2026-11-05 的 `unified-20261103l`。与它相比，只更换了 Generic NR 插件（`renodx-dlss5.addon64`）和包内的使用说明，见下文“相比 unified-20261103l 的新内容”。仓库已于 2026-11-05 由 `dlss5-vulkan-fg-relay` 改名为 `endfield-dlss5-vulkan-plugin`，旧链接会被 GitHub 自动跳转。更早一版 `unified-20261015q` 的 README 保留在 [docs/history/README-unified-20261015q.md](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/docs/history/README-unified-20261015q.md)。
 
 A Chinese install guide written by the author is also available: [中文使用教程.txt](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B.txt).
 
@@ -18,7 +18,19 @@ A Chinese install guide written by the author is also available: [中文使用�
 
 **怎么做到的。** 游戏先画出一张画面，再交给它自带的 DLSS 帧生成去插出中间的画面。插件在帧生成接手之前，对这张已经画好的真实画面做神经渲染；帧生成随后用这张改进过的画面去生成插帧，最耗性能的 AI 步骤只需每张真实画面做一次，而不是屏幕上每显示一帧都做一次。本版中这一步直接在游戏自己的 Vulkan 设备和呈现队列上运行，不再使用以前版本的独立 Direct3D 12 设备和 GPU 中继，在实测的 RTX 4060 Laptop 上因此约省下 1.1～1.4 GB 显存。
 
-**What is new since unified-20261015q.**
+**What is new since unified-20261103l.**
+
+1. **Fixed: the Present layer could stop having any effect** after it was turned off and on again, or after NR was toggled with the hotkey while the ReShade menu was closed, until the NR resolution was changed once. A Present layer that stops working after a map change or a UI transition very likely has the same cause; that case has not been confirmed on the PC where it was reported.
+2. **Fixed: displaced "shadow" copies of models in the Present layer** when the game resolution is smaller than the display (letterboxed fullscreen, for example 3840×2160 on a 5120×2160 display).
+3. Only `renodx-dlss5.addon64` and the usage document changed; the bridge, MFG Unlock, the uninstaller and the runtime files are identical to `unified-20261103l`. The technical description is in section 3.10.
+
+**相比 unified-20261103l 的新内容。**
+
+1. **已修复：“呈现”层可能不再有任何效果。** 把“呈现”层关闭后再打开，或在 ReShade 菜单关闭时用快捷键开关 NR 之后，“呈现”层有时不再生效，直到改一次 NR 分辨率才恢复。切换地图或界面后“呈现”层失效，很可能是同一原因；这种情况尚未在报告问题的电脑上确认。
+2. **已修复：“呈现”层出现位置错开的模型“影子”。** 游戏分辨率小于显示器分辨率时（带黑边的全屏，例如在 5120×2160 显示器上使用 3840×2160）会出现。
+3. 只更换了 `renodx-dlss5.addon64` 和使用说明；Bridge、MFG Unlock、卸载工具和运行库文件与 `unified-20261103l` 完全相同。技术说明见 3.10 节。
+
+**What is new since unified-20261015q** (already part of `unified-20261103l`, unchanged in this release).
 
 1. **Less video memory, much better on 8 GB cards.** Present-stage NR runs on the game's Vulkan device (see above). NR resources are released before their replacements are created, turning NR off frees its memory, and the add-on's own memory is marked as the first to be moved out when video memory runs short, so the game's own data stays in video memory. A new "Windows VRAM budget" switch can give the game a few hundred MB more on 8 GB cards.
 2. **Smoother 3x–6x frame generation with NR on**, because NR no longer delays the generated frames.
@@ -28,7 +40,7 @@ A Chinese install guide written by the author is also available: [中文使用�
 6. **Simpler panels and new defaults:** secondary options are under "Advanced settings", notices sit in a fixed paged area, new first-install defaults (Present 1 layer, Performance resolution), a one-click "Adjust NR's look" switch to compare before/after, and screenshots that save exactly the final image.
 7. **Uninstall in one step:** the recovery file now only does a full uninstall after you type Y, also restores the driver settings and the Windows VRAM budget, and leaves no package file in the game folder.
 
-**相比 unified-20261015q 的新内容。**
+**相比 unified-20261015q 的新内容**（`unified-20261103l` 已包含，本版未改动）。
 
 1. **显存占用更少，8 GB 显卡明显改善。** “呈现”层 NR 改在游戏的 Vulkan 设备上运行（见上）。NR 资源先释放旧的再创建新的；关闭 NR 会释放其显存；显存不够时，插件自己的数据会被优先挪出显存，游戏自己的数据留在显存里。新增“Windows 显存预算”开关，8 GB 显卡可多用几百 MB 显存。
 2. **开 NR 时 3～6 倍帧生成更流畅**，因为 NR 不再拖慢生成帧。
@@ -38,9 +50,9 @@ A Chinese install guide written by the author is also available: [中文使用�
 6. **面板更简洁、默认值更新：** 次要选项放进“高级设置”，提示统一放在固定大小的翻页提示区；新的首装默认值（呈现 1 层、分辨率“性能”）；一键“调整 NR 的外观”开关方便对比调色前后；截图只保存最终画面。
 7. **一步卸载：** 恢复文件现在只做完全卸载，输入 Y 后执行，同时还原驱动设置和 Windows 显存预算，游戏目录中不留本包文件。
 
-**Tested.** The author measured this package in game on RTX 2070, RTX 3070 Ti, RTX 4060 Laptop, RTX 3050 Laptop, RTX 4080 and RTX 5090 (table in "Measured frame rates"). The memory and frame-generation changes were developed and checked in game on an RTX 4060 Laptop (8 GB); every build passed the offline fixtures listed in [BUILDING.md](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/BUILDING.md). What was not verified is listed in "Limitations".
+**Tested.** The Generic of this release was tested in game on one RTX 5090 only (section 3.10). The author measured the previous package `unified-20261103l` in game on RTX 2070, RTX 3070 Ti, RTX 4060 Laptop, RTX 3050 Laptop, RTX 4080 and RTX 5090 (table in "Measured frame rates"). The memory and frame-generation changes were developed and checked in game on an RTX 4060 Laptop (8 GB); every build passed the offline fixtures listed in [BUILDING.md](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/BUILDING.md). What was not verified is listed in "Limitations".
 
-**测试情况。** 作者用本包在 RTX 2070、RTX 3070 Ti、RTX 4060 Laptop、RTX 3050 Laptop、RTX 4080 和 RTX 5090 上做了游戏内实测（见“实测帧率”中的表格）。显存与帧生成相关的改动是在一台 RTX 4060 Laptop（8 GB）上开发并做游戏内检查的；每个构建都通过了 [BUILDING.md](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/BUILDING.md) 中列出的离线测试。未验证的部分见“限制”一节。
+**测试情况。** 本版的 Generic 只在一台 RTX 5090 上做了游戏内测试（3.10 节）。作者用上一版 `unified-20261103l` 在 RTX 2070、RTX 3070 Ti、RTX 4060 Laptop、RTX 3050 Laptop、RTX 4080 和 RTX 5090 上做了游戏内实测（见“实测帧率”中的表格）。显存与帧生成相关的改动是在一台 RTX 4060 Laptop（8 GB）上开发并做游戏内检查的；每个构建都通过了 [BUILDING.md](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/BUILDING.md) 中列出的离线测试。未验证的部分见“限制”一节。
 
 **Maintenance.** From this release on, this repository is maintained as a standalone project. Changes are published here as complete source and packages; they are no longer prepared as pull requests or merge kits for the projects it is based on (see "Licenses and acknowledgements").
 
@@ -50,9 +62,9 @@ A Chinese install guide written by the author is also available: [中文使用�
 
 # Install guide / 使用教程
 
-This guide assumes that you have never installed ReShade or any add-on for this game. If you already use `unified-20261015q`, read "Updating from unified-20261015q" first.
+This guide assumes that you have never installed ReShade or any add-on for this game. If you already use `unified-20261103l` or `unified-20261015q`, read "Updating from an earlier release" first.
 
-本教程假设你从未给这个游戏安装过 ReShade 或任何插件。如果你正在用 `unified-20261015q`，请先看“从 unified-20261015q 升级”一节。
+本教程假设你从未给这个游戏安装过 ReShade 或任何插件。如果你正在用 `unified-20261103l` 或 `unified-20261015q`，请先看“从旧版本升级”一节。
 
 作者手写的中文版教程（内容更详细，含更多注意事项）：[中文使用教程.txt](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B.txt)。
 
@@ -121,8 +133,8 @@ This statement, my "disclaimer" above, does not mean that I support or oppose an
 
 1. **ReShade 6.8.0 with full add-on support:** https://reshade.me/downloads/ReShade_Setup_6.8.0_Addon.exe (the same file as the button "Download ReShade 6.8.0 with full add-on support" on https://reshade.me).
    **带完整插件支持的 ReShade 6.8.0：** https://reshade.me/downloads/ReShade_Setup_6.8.0_Addon.exe （与 https://reshade.me 上“Download ReShade 6.8.0 with full add-on support”按钮下载的是同一个文件）。
-2. **This package:** on the release page https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/releases/tag/unified-20261103l, scroll down to "Assets" and click `unified-20261103l-candidate.zip` (about 280 MB). Do not download "Source code"; that is not the add-on. Right-click the downloaded zip file and choose "Extract All"; this creates a folder named `unified-20261103l-candidate`.
-   **本插件包：** 打开发布页 https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/releases/tag/unified-20261103l ，往下找到“Assets”，点击 `unified-20261103l-candidate.zip`（约 280 MB）。不要下载“Source code”，那不是插件。下载后右键这个 zip 文件，选择“全部解压缩”，会得到一个名为 `unified-20261103l-candidate` 的文件夹。
+2. **This package:** on the release page https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/releases/tag/unified-20261107m, scroll down to "Assets" and click `unified-20261107m-candidate.zip` (about 280 MB). Do not download "Source code"; that is not the add-on. Right-click the downloaded zip file and choose "Extract All"; this creates a folder named `unified-20261107m-candidate`.
+   **本插件包：** 打开发布页 https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/releases/tag/unified-20261107m ，往下找到“Assets”，点击 `unified-20261107m-candidate.zip`（约 280 MB）。不要下载“Source code”，那不是插件。下载后右键这个 zip 文件，选择“全部解压缩”，会得到一个名为 `unified-20261107m-candidate` 的文件夹。
 
 The name contains "candidate" because the package is published exactly as it was built and tested under that name. The package also contains a technical document, `DLSS5-使用与恢复 Usage and Recovery.md`; you do not need it to follow this guide.
 
@@ -154,8 +166,8 @@ The name contains "candidate" because the package is published exactly as it was
 **8.** A green tick and "Successfully installed ReShade ......" means ReShade is installed. Click "Finish". You can delete the installer now or keep it for a reinstall.
 **8.** 出现绿色对勾和“Successfully installed ReShade ......”表示安装成功。点“Finish”。之后可以删除安装程序，也可以留着以备重装。
 
-**9.** Open the `unified-20261103l-candidate` folder, select everything inside it (all files and the `dlss5` folder; Ctrl+A works) and copy it into the game folder from step 2. Copy what is inside the folder, not the folder itself. If Windows asks for administrator permission, click "Continue". You can delete the extracted folder afterwards or keep it for a reinstall.
-**9.** 打开 `unified-20261103l-candidate` 文件夹，全选里面的所有文件和文件夹（包括 `dlss5`，可以按 Ctrl+A），全部复制到第 2 步的游戏目录。复制的是文件夹里面的内容，不是这个文件夹本身。Windows 要求管理员权限时点“继续”。之后可以删除解压出的文件夹，也可以留着以备重装。
+**9.** Open the `unified-20261107m-candidate` folder, select everything inside it (all files and the `dlss5` folder; Ctrl+A works) and copy it into the game folder from step 2. Copy what is inside the folder, not the folder itself. If Windows asks for administrator permission, click "Continue". You can delete the extracted folder afterwards or keep it for a reinstall.
+**9.** 打开 `unified-20261107m-candidate` 文件夹，全选里面的所有文件和文件夹（包括 `dlss5`，可以按 Ctrl+A），全部复制到第 2 步的游戏目录。复制的是文件夹里面的内容，不是这个文件夹本身。Windows 要求管理员权限时点“继续”。之后可以删除解压出的文件夹，也可以留着以备重装。
 
 **10.** Turn on Windows "Hardware-accelerated GPU scheduling"; frame generation does not work without it. Part of this add-on runs at the entrance of frame generation, so you need at least 2x frame generation to use it. If you do not want frame generation at all, this add-on is not for you.
 **10.** 打开 Windows 的“硬件加速 GPU 计划”，不开就不能用帧生成。本插件有一部分运行在帧生成的入口上，所以至少要开 2 倍帧生成才能正常使用。如果完全不想开帧生成，本插件不适合你。
@@ -245,11 +257,15 @@ With 8 GB of video memory or less, or 16 GB of RAM or less, raise quality step b
 4. **Safe mode is still on.** If NR still does not work after every setting is correct, and the "DLSS 5 Neural Rendering" page says "NR runtime not installed" ("未安装 NR 运行时") and "NVIDIA's signed nvngx_dlssnr.dll is not next to the addon or the game's executable", safe mode was switched on by an earlier problem. Open "DLSS 5 Bridge"; a ticked "Safe mode next launch" ("下次启动安全模式（手动退出）") is shown. Untick it and restart the game. Safe mode lets you keep playing without the add-on's interventions when something is badly incompatible; it cannot guarantee that in every extreme case.
    **安全模式仍在开启。** 如果所有设置都正确后 NR 仍不生效，且“DLSS 5 Neural Rendering”页提示“未安装 NR 运行时”、“插件或游戏可执行文件旁没有 NVIDIA 签名的 nvngx_dlssnr.dll……”，说明之前的问题让安全模式开启了。点进“DLSS 5 Bridge”，会看到已勾选的“下次启动安全模式（手动退出）”，取消勾选并重启游戏即可。安全模式用于在严重不兼容时让游戏暂时不受插件干预地运行，但无法保证在所有极端情况下都有效。
 
-## Updating from unified-20261015q / 从 unified-20261015q 升级
+## Updating from an earlier release / 从旧版本升级
 
-Close the game, copy everything from `unified-20261103l-candidate` into the game folder as in step 9, and choose "Replace" for existing files. Your settings in `ReShade.ini` are kept: new defaults apply only to values you never saved, and hidden options keep their saved values. Steps 1–8 can be skipped. Optionally set "Windows VRAM budget" (step 13). If you still use the 2026-10-05 version, first follow "Already using the 2026-10-05 version" in [docs/history/README-unified-20261015q.md](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/docs/history/README-unified-20261015q.md).
+**From `unified-20261103l`.** Close the game, copy everything from `unified-20261107m-candidate` into the game folder as in step 9, and choose "Replace" for existing files. Only `renodx-dlss5.addon64` and the usage document differ from `unified-20261103l`; nothing else has to be done and your settings are kept.
 
-关闭游戏，按第 9 步把 `unified-20261103l-candidate` 里的全部内容复制到游戏目录，已存在的文件选“替换”。`ReShade.ini` 里的设置会保留：新默认值只用于你从未保存过的项，被隐藏的选项也保留原值。第 1～8 步可以跳过。可按需设置“Windows 显存预算”（第 13 步）。如果还在用 2026-10-05 版本，请先按 [docs/history/README-unified-20261015q.md](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/docs/history/README-unified-20261015q.md) 中“已经在用 2026-10-05 版本”一节操作。
+**从 `unified-20261103l` 升级。** 关闭游戏，按第 9 步把 `unified-20261107m-candidate` 里的全部内容复制到游戏目录，已存在的文件选“替换”。与 `unified-20261103l` 相比只有 `renodx-dlss5.addon64` 和使用说明不同；不需要其他操作，设置会保留。
+
+**From `unified-20261015q`.** Close the game, copy everything from `unified-20261107m-candidate` into the game folder as in step 9, and choose "Replace" for existing files. Your settings in `ReShade.ini` are kept: new defaults apply only to values you never saved, and hidden options keep their saved values. Steps 1–8 can be skipped. Optionally set "Windows VRAM budget" (step 13). If you still use the 2026-10-05 version, first follow "Already using the 2026-10-05 version" in [docs/history/README-unified-20261015q.md](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/docs/history/README-unified-20261015q.md).
+
+**从 `unified-20261015q` 升级。** 关闭游戏，按第 9 步把 `unified-20261107m-candidate` 里的全部内容复制到游戏目录，已存在的文件选“替换”。`ReShade.ini` 里的设置会保留：新默认值只用于你从未保存过的项，被隐藏的选项也保留原值。第 1～8 步可以跳过。可按需设置“Windows 显存预算”（第 13 步）。如果还在用 2026-10-05 版本，请先按 [docs/history/README-unified-20261015q.md](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/docs/history/README-unified-20261015q.md) 中“已经在用 2026-10-05 版本”一节操作。
 
 ## Updates, uninstalling, known issues and bug reports / 更新、卸载、已知问题与反馈
 
@@ -290,9 +306,9 @@ Close the game, copy everything from `unified-20261103l-candidate` into the game
 
 # Measured frame rates / 实测帧率
 
-Displayed frame rates (including generated frames) measured by the author with this package. "U1+P1" means Upscaled 1 layer + Present 1 layer; "P1" means Present 1 layer. "NR resolution" is the tier on the "DLSS 5 Neural Rendering" page (Performance / Quality / Full) or the resolution scale. "VRAM budget" says whether the "Windows VRAM budget" switch was on. A remote-access program was running during these measurements; it uses some GPU time and video memory itself.
+Displayed frame rates (including generated frames) measured by the author with the previous package `unified-20261103l`. This release changes only what section 3.10 describes and was not measured again on these PCs. "U1+P1" means Upscaled 1 layer + Present 1 layer; "P1" means Present 1 layer. "NR resolution" is the tier on the "DLSS 5 Neural Rendering" page (Performance / Quality / Full) or the resolution scale. "VRAM budget" says whether the "Windows VRAM budget" switch was on. A remote-access program was running during these measurements; it uses some GPU time and video memory itself.
 
-以下为作者用本包实测的上屏帧率（含生成帧）。“U1+P1”表示超分后 1 层 + 呈现 1 层，“P1”表示呈现 1 层。“NR 分辨率”为“DLSS 5 Neural Rendering”页的分辨率档位（性能 / 质量 / 原画）或分辨率比例。“显存预算”表示“Windows 显存预算”开关是否开启。测试期间运行着远程访问软件，它本身也会占用一部分 GPU 性能和显存。
+以下为作者用上一版 `unified-20261103l` 实测的上屏帧率（含生成帧）。本版只改了 3.10 节所述的内容，没有在这些电脑上重新测量。“U1+P1”表示超分后 1 层 + 呈现 1 层，“P1”表示呈现 1 层。“NR 分辨率”为“DLSS 5 Neural Rendering”页的分辨率档位（性能 / 质量 / 原画）或分辨率比例。“显存预算”表示“Windows 显存预算”开关是否开启。测试期间运行着远程访问软件，它本身也会占用一部分 GPU 性能和显存。
 
 | GPU (VRAM) / 显卡（显存） | Resolution / 分辨率 | VRAM budget / 显存预算 | Purpose / 用途 | Game DLSS SR / 游戏内超分 | NR layers / NR 层 | NR resolution / NR 分辨率 | FG / 帧生成 | SR model / 超分模型 | FPS / 帧率 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -337,20 +353,20 @@ Shared by an internal tester; not measured by the author, and the test condition
 
 # Technical details / 技术说明
 
-Everything below is for developers and maintainers: components, what changed since `unified-20261015q` and why, how it was checked, and what is still open. "Intermediate builds" are the builds between the two releases (`unified-20261021r` to `unified-20261102k`, and development builds named `vramserial*` and `pageable*`); their code is contained in this release unless stated.
+Everything below is for developers and maintainers: components, what changed since `unified-20261015q` and why, how it was checked, and what is still open. "Intermediate builds" are the builds between the two releases (`unified-20261021r` to `unified-20261102k`, and development builds named `vramserial*` and `pageable*`); their code is contained in this release unless stated. Sections 3.1 to 3.9 describe the changes between `unified-20261015q` and `unified-20261103l`; section 3.10 describes the changes since `unified-20261103l`. In sections 2 to 3.9, "this release" and "now" refer to the state first published as `unified-20261103l`, which this release contains unchanged apart from section 3.10.
 
-以下内容面向开发者与维护者：组件、自 `unified-20261015q` 以来的改动及原因、验证方式和未解决的问题。“中间构建”指两次发布之间的构建（`unified-20261021r`～`unified-20261102k`，以及名为 `vramserial*`、`pageable*` 的开发构建）；除特别说明外，其代码都包含在本版中。
+以下内容面向开发者与维护者：组件、自 `unified-20261015q` 以来的改动及原因、验证方式和未解决的问题。“中间构建”指两次发布之间的构建（`unified-20261021r`～`unified-20261102k`，以及名为 `vramserial*`、`pageable*` 的开发构建）；除特别说明外，其代码都包含在本版中。3.1～3.9 节说明 `unified-20261015q` 到 `unified-20261103l` 之间的改动，3.10 节说明自 `unified-20261103l` 以来的改动。第 2 节到 3.9 节中的“本版”“现在”指最初以 `unified-20261103l` 发布的状态；除 3.10 节所述内容外，本版对其未作改动。
 
 ## 1. Components and versions / 组件与版本
 
-The package `unified-20261103l-candidate.zip` (SHA-256 `a4bc27f82fb83433fd5bf7243e2b598449b98e79d8f8a5acb3516f012d322985`, 280,391,058 bytes) contains 23 files; `SHA256SUMS.txt` and `release-manifest.json` inside list them.
+The package `unified-20261107m-candidate.zip` (SHA-256 `947eb1a5cce0a5158359f12b75e8dd614c453e99333a176720ffbd3492036248`, 280,418,774 bytes) contains 23 files; `SHA256SUMS.txt` and `release-manifest.json` inside list them.
 
-成品包 `unified-20261103l-candidate.zip`（SHA-256 `a4bc27f82fb83433fd5bf7243e2b598449b98e79d8f8a5acb3516f012d322985`，280,391,058 字节）含 23 个文件，包内 `SHA256SUMS.txt` 和 `release-manifest.json` 列出了全部文件。
+成品包 `unified-20261107m-candidate.zip`（SHA-256 `947eb1a5cce0a5158359f12b75e8dd614c453e99333a176720ffbd3492036248`，280,418,774 字节）含 23 个文件，包内 `SHA256SUMS.txt` 和 `release-manifest.json` 列出了全部文件。
 
 | File / 文件 | Version / 版本 | SHA-256 | Source / 来源 |
 | --- | --- | --- | --- |
 | `dlss5-bridge.addon64` | `1.4.13-pre8-unified2d-20261101` | `778265b3e6ab58119888cddc9c788dabe26e5cc7a2ef0df98538667874acf014` | based on / 基于 [NIGos/dlss5-bridge](https://github.com/NIGos/dlss5-bridge) |
-| `renodx-dlss5.addon64` | Generic `v8.5.0-rc10-unified2l-20261103` | `8790e0d3cad277861c198d1f76bd9e9fc3564ab226b243787d59b73e0c7ce7ca` | based on / 基于 RenoDX DLSS 5 Generic 8.5.0-rc10 |
+| `renodx-dlss5.addon64` | Generic `v8.5.0-rc10-unified2l-20261103`, build / 构建 `unified2m-fix2-20261107` | `509eff5c4b30e81ec79ec4cd44075d9b8735051fbda9e1dca6533de8878ad7e8` | based on / 基于 RenoDX DLSS 5 Generic 8.5.0-rc10 |
 | `renodx-mfgunlock.addon64` | MFG Unlock `0.11+unified2j-20261102` | `a9d88b5403f8d4be3de8de59cbb257fb32ea14a1777065eb2a81b118242f796e` | based on / 基于 [nefh/MFGAmpereUnlock-RenoDx](https://github.com/nefh/MFGAmpereUnlock-RenoDx) tag `0.11` |
 | `dlss5/nr/rtx50/nvngx_dlssnr.dll` | 310.8.0.0, NVIDIA-signed, `sm_120` only | `e16bcf15e16e13f527491cdf7845b2fe6521a738d8f7c9c721866a8496e1fc8e` | NVIDIA NR runtime |
 | `dlss5/nr/rtx20-40/nvngx_dlssnr.dll` | 310.8.SF.0, not signed / 未签名 | `6eb209e764f39872625debd6abaf45e2bb6322f6f270f781f70c059ae30b3927` | community-modified runtime / 社区修改版，[RHI release dlssnr-310.8.SF-v2](https://github.com/RankFTW/rhi-repo/releases/tag/dlssnr-310.8.SF-v2) |
@@ -358,9 +374,9 @@ The package `unified-20261103l-candidate.zip` (SHA-256 `a4bc27f82fb83433fd5bf724
 | `DLSS5-Recovery 故障恢复.cmd`, `DLSS5-Clean-Recovery.ps1`, `DLSS5-RestoreDriver.exe` | — | see / 见 `SHA256SUMS.txt` | this project / 本项目 |
 | `DLSS5-使用与恢复 Usage and Recovery.md`, `payload-manifest.json`, `release-manifest.json`, `SHA256SUMS.txt` | — | — | this project / 本项目 |
 
-The three add-ons were built from the source in this repository. The bridge and MFG Unlock were built in the intermediate builds unified2d and unified2j; their source has not changed since, which is why their versions differ from Generic's. The runtime files are unchanged since `unified-20261015q`.
+The three add-ons were built from the source in this repository. The bridge and MFG Unlock were built in the intermediate builds unified2d and unified2j; their source has not changed since, which is why their versions differ from Generic's. Generic was rebuilt on 2026-11-07 with the changes of section 3.10. It keeps the version string of `unified-20261103l` so that the bridge's compatibility check accepts it; this build is identified by `build unified2m-fix2-20261107` at the end of the `Vulkan pre-present NR ready` line in `ReShade.log`. The runtime files are unchanged since `unified-20261015q`.
 
-三个插件均由本仓库中的源码构建。Bridge 和 MFG Unlock 分别构建于中间构建 unified2d 和 unified2j，此后其源码未再改动，所以它们的版本号与 Generic 不同。运行库文件自 `unified-20261015q` 起没有变化。
+三个插件均由本仓库中的源码构建。Bridge 和 MFG Unlock 分别构建于中间构建 unified2d 和 unified2j，此后其源码未再改动，所以它们的版本号与 Generic 不同。Generic 于 2026-11-07 带着 3.10 节的改动重新构建。它沿用 `unified-20261103l` 的版本号，以便 Bridge 的兼容性检查继续接受它；本构建以 `ReShade.log` 中 `Vulkan pre-present NR ready` 一行末尾的 `build unified2m-fix2-20261107` 识别。运行库文件自 `unified-20261015q` 起没有变化。
 
 ## 2. How the pieces fit together / 组件如何协作
 
@@ -470,7 +486,29 @@ New log coverage, all bounded: the bridge's `[vram-residency]` lines (process lo
 
 新增的日志覆盖面均有上限：Bridge 的 `[vram-residency]` 行（从 GPU 性能计数器读取进程的本地/非本地/提交内存，变化时记录）；Generic 的 `Vulkan NR recovery N`（每次 NR 重建后 30 秒内的显存与上屏速率）、降级类别变化、NR 释放与替换等待行，以及 `prepresent[...]` / `vkmem[...]` 遥测组；每次启动的 `[deployment] Windows VRAM budget: kind=...`；`Vulkan device-name unlock` 行。日志位置与异常日志不变（`dlss5\dlss5_log\`，见包内使用说明）。
 
+### 3.10 Changes since unified-20261103l: Present-stage NR objects, letterbox origin / 自 unified-20261103l 以来的改动：“呈现”层 NR 对象的创建，黑边画面的原点
+
+Only Generic changed (`vulkan_path.hpp`, `runtime_lock.hpp`, `declines.hpp`, `dlssnr.hpp`, `screenshot.hpp`).
+
+只改了 Generic（`vulkan_path.hpp`、`runtime_lock.hpp`、`declines.hpp`、`dlssnr.hpp`、`screenshot.hpp`）。
+
+- **Problem 1: a Present layer without effect.** In `unified-20261103l`, turning the Present layer off and on again (or toggling NR with the hotkey) sometimes left the Present layer without effect until the NR resolution was changed. The Present stage is served by two paths (section 3.1): the pre-present path with Generic's own command buffers, and the fallback inside the DLSS-G evaluate. An NR feature records its GPU initialisation into the command buffer of the path that creates it. When the pre-present path created the feature and then declined the same frame, it abandoned that command buffer without submitting it; the initialisation never ran, and every later frame evaluated the feature without any visible result. This happened when the layer was turned on again less than about 2 s after it was turned off, and, with only the Present layer in use, when the game paused frame generation for about 3 s or longer (map change, some UI screens).
+  **问题 1：“呈现”层没有效果。** 在 `unified-20261103l` 中，把“呈现”层关闭后再打开（或用快捷键开关 NR），“呈现”层有时不再生效，直到改一次 NR 分辨率才恢复。“呈现”层由两条路径处理（3.1 节）：使用 Generic 自己的命令缓冲的 pre-present 路径，以及 DLSS-G evaluate 内的回退路径。NR 特征会把自己的 GPU 初始化命令录进创建它的那条路径的命令缓冲。当 pre-present 路径创建了特征、随后又放弃处理这一帧时，这个命令缓冲被丢弃、没有提交；初始化从未执行，此后每帧照常评估这个特征，却没有任何可见结果。关闭后不到约 2 秒就重新打开，或只使用“呈现”层时游戏暂停帧生成约 3 秒以上（切换地图、部分界面），都会走到这种情况。
+- **Change 1.** The Present stream's objects (NR feature, workset, pre-FG image) are created only by the DLSS-G evaluate path. The pre-present path only uses them: before it records anything it checks that the objects exist, match the current configuration, are not being replaced and that their creation is proven complete on the GPU; otherwise it leaves the frame to the evaluate path (new decline reason `prefg_left_to_evaluate`). Every command buffer the pre-present path begins is submitted on every exit. After a toggle, the evaluate path serves the first 1–3 frames and the pre-present path then takes over (37–91 ms in the test below).
+  **改动 1。** “呈现”流的对象（NR 特征、工作集、pre-FG 图像）只由 DLSS-G evaluate 路径创建。pre-present 路径只使用它们：录制任何命令之前，先检查对象存在、与当前配置一致、没有正在被替换，并且其创建已被证明在 GPU 上完成；否则把这一帧交给 evaluate 路径（新增拒绝原因 `prefg_left_to_evaluate`）。pre-present 路径开始录制的每个命令缓冲，在每个出口都会提交。每次开关后，最初 1～3 帧由 evaluate 路径处理，之后由 pre-present 路径接手（下述测试中为 37～91 ms）。
+- **Problem 2 and change 2: letterboxed fullscreen.** The pre-present path used 0 as the origin of the backbuffer sub-rectangle. With a 16:9 game image on a wider display, the NR result was written one letterbox width away from the image, which showed as displaced "shadow" copies of models. The path now reads and writes at the origin DLSS-G declares.
+  **问题 2 与改动 2：带黑边的全屏。** pre-present 路径把后备缓冲子矩形的原点当作 0。16:9 的游戏画面显示在更宽的屏幕上时，NR 结果被写到偏移一个黑边宽度的位置，表现为位置错开的模型“影子”。现在该路径按 DLSS-G 声明的原点读写。
+- **Other changes.** When a game does not mark a HUD-less image but Streamline supplies one, the pre-present path serves those frames too and copies the NR result into it (Arknights: Endfield marks the image, so nothing changes in this game). Cached motion vectors and depth expire after eight DLSS-G call intervals (bounded to 250 ms–2 s, previously a fixed 2 s) and immediately when an image they refer to is destroyed. The diagnostic trace `[prefg-diag]` is off by default (`NRDiagPrefg=1` under `[RenoDX.DLSS5]` turns it on). Compared with `unified-20261103l`, the per-frame additions are an atomic readiness check and timing counters; no lock and no string formatting were added.
+  **其他改动。** 游戏没有标记无 UI 画面、但 Streamline 提供了一张时，pre-present 路径也处理这些帧，并把 NR 结果复制进这张画面（《明日方舟：终末地》会做这个标记，本游戏中的行为不变）。缓存的运动矢量和深度在 8 个 DLSS-G 调用间隔后失效（限定在 250 ms～2 s，此前固定为 2 s），所引用的图像被销毁时立即失效。诊断跟踪 `[prefg-diag]` 默认关闭（在 `[RenoDX.DLSS5]` 下写 `NRDiagPrefg=1` 开启）。与 `unified-20261103l` 相比，每帧新增的工作只有一次原子的就绪检查和计时计数，没有新增加锁和字符串拼接。
+- **New log coverage (bounded).** `[feature-lifecycle] Vulkan Present stream: ...` for each creation and takeover of the Present stream, changes of the DLSS-G sub-rectangles, every 30 s the per-frame CPU time and lock-wait time of both paths (`prepresent_cpu[...]`, `prefg_cpu[...]`), and `[action] phase=hotkey_ignored` when the NR hotkey is pressed while another window has the foreground.
+  **新增日志（均有上限）。** “呈现”流每次创建和接手的 `[feature-lifecycle] Vulkan Present stream: ...`，DLSS-G 子矩形的变化，每 30 秒两条路径的每帧 CPU 时间和等锁时间（`prepresent_cpu[...]`、`prefg_cpu[...]`），以及游戏不在前台时按下 NR 快捷键的 `[action] phase=hotkey_ignored`。
+- **Checked.** The offline fixtures of [BUILDING.md](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/BUILDING.md) pass. In game on one RTX 5090 (5120×2160, driver 621.14), two sessions with the Upscaled layer on: the Present layer was switched between 1 and 0 layers 34 times, at native resolution and letterboxed; all 37 creations of the Present stream happened on the DLSS-G command buffer, the pre-present path never began a command buffer that it then submitted without serving the frame (`unserved_submits=0`), and the author saw no failure. Against `unified-20261103l` in the same scene (4x frame generation, 120 Hz, one run per version), presents per second and the 99th-percentile present interval differed by no more than about 4 %; one run per version is not enough to attribute that difference to either version. What was not tested is listed in section 4.
+  **验证。** [BUILDING.md](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/BUILDING.md) 中的离线测试全部通过。在一台 RTX 5090（5120×2160，驱动 621.14）上做游戏内测试，共两局，“超分后”层保持开启：“呈现”层在 1 层与 0 层之间切换 34 次，包括原生分辨率和带黑边两种情况；“呈现”流的 37 次创建全部发生在 DLSS-G 的命令缓冲上，pre-present 路径没有出现“开始录制命令缓冲、提交后却没有处理这一帧”的情况（`unserved_submits=0`），作者未见失效。与 `unified-20261103l` 在同一场景对比（4 倍帧生成，120 Hz，每个版本各测一次），每秒 present 次数和第 99 百分位 present 间隔的差异不超过约 4%；每个版本只测一次，不足以把这一差异归因于某个版本。未测试的部分见第 4 节。
+
 ## 4. Limitations and open issues / 限制与未解决问题
+
+- **This release's Generic (section 3.10)** was tested in game on one RTX 5090 with driver 621.14 only, not on other GPUs, Windows versions or drivers. Not tested in game: rapid toggling with the NR hotkey (Num *), using only the Present layer while entering and leaving menus, and two Present layers (`NRPresentPasses=2`). The fix for a Present layer that stops working after a map change or UI transition has not been confirmed on the PC where the problem was reported. The warning "NR skipped frames without saying why" (`NR-WARN frames_unaccounted` in the log) can appear after frame generation starts; it also occurs in `unified-20261103l`, comes from how frames are counted and does not mean that NR produced no output.
+  **本版的 Generic（3.10 节）** 只在一台 RTX 5090、驱动 621.14 上做了游戏内测试，没有在其他显卡、Windows 版本或驱动上测试。未做游戏内测试：用 NR 快捷键（Num *）快速开关；只使用“呈现”层时进出菜单；两个“呈现”层（`NRPresentPasses=2`）。切换地图或界面后“呈现”层失效的修复，尚未在报告问题的电脑上确认。帧生成启动后可能出现警告“NR skipped frames without saying why”（日志中为 `NR-WARN frames_unaccounted`）；`unified-20261103l` 同样会出现，它来自帧的计数口径，不代表 NR 没有输出。
 
 - **Verification coverage.** The changes were checked by offline fixtures and in game mainly on an RTX 4060 Laptop; the other GPUs have the author's frame-rate measurements but no detailed log review in this document. Not tested: RTX 3050 Ti Laptop and RTX 2050 name unlock; a real uninstall with this release's script; a real crash passing through the new crash-handler chain logic; whether ReShade reads `SkipLoadingDisabledEffects` before its first effect load; a short stutter when the "Adjust NR's look" switch first allocates its stage. Only Arknights: Endfield on Vulkan was tested.
   **验证范围。** 改动主要通过离线测试，以及在 RTX 4060 Laptop 上的游戏内检查验证；其他显卡有作者的帧率实测，但本文档未对其日志做详细分析。未测试：RTX 3050 Ti Laptop 和 RTX 2050 的名称解锁；用本版脚本对真实安装执行卸载；真实崩溃经过新的崩溃链逻辑；ReShade 是否在首次加载效果前读到 `SkipLoadingDisabledEffects`；“调整 NR 的外观”开关首次分配资源时是否短暂卡顿。只测试了 Vulkan 下的《明日方舟：终末地》。
@@ -497,8 +535,8 @@ New log coverage, all bounded: the bridge's `[vram-residency]` lines (process lo
 
 | Asset / 附件 | Bytes / 字节 | SHA-256 | Content / 内容 |
 | --- | ---: | --- | --- |
-| `unified-20261103l-candidate.zip` | 280,391,058 | `a4bc27f82fb83433fd5bf7243e2b598449b98e79d8f8a5acb3516f012d322985` | the ready-to-use package / 成品包 |
-| `unified-20261103l-source.zip` | 20,629,528 | `727f0a0ed6f10343191420bcd638bc4ec3bfc8248b923433f0353f04e0d2e61d` | the complete source, same as the repository's `src/`, `tools/`, `upstream/` and `BUILDING.md` / 完整源码，与仓库中的 `src/`、`tools/`、`upstream/` 和 `BUILDING.md` 相同 |
+| `unified-20261107m-candidate.zip` | 280,418,774 | `947eb1a5cce0a5158359f12b75e8dd614c453e99333a176720ffbd3492036248` | the ready-to-use package / 成品包 |
+| `unified-20261107m-source.zip` | 20,646,788 | `6240df0962ccf598ee84affbede316f257c0d905e481aad4ee2b7055c773d5aa` | the complete source, same as the repository's `src/`, `tools/`, `upstream/` and `BUILDING.md` / 完整源码，与仓库中的 `src/`、`tools/`、`upstream/` 和 `BUILDING.md` 相同 |
 | `SHA256SUMS.txt` | — | — | SHA-256 of both archives / 两个压缩包的 SHA-256 |
 
 ### 5.2 Repository content / 仓库内容
@@ -511,13 +549,13 @@ New log coverage, all bounded: the bridge's `[vram-residency]` lines (process lo
 | `src/unified-20261011/` | production source of the bridge, Generic, MFG Unlock and the shared headers / Bridge、Generic、MFG Unlock 与共享头文件的生产源码 |
 | `tools/unified-20261011/` | build, test and packaging scripts, uninstaller, restore helper source / 构建、测试、打包脚本，卸载工具，恢复助手源码 |
 | `upstream/NVIDIA-nvapi-87dca62/` | NVAPI SDK |
-| `tools/release-unified-20261103l/` | the script that staged this release and its secret scan / 生成本次发布的脚本及敏感信息扫描 |
+| `tools/release-unified-20261107m/` | the script that staged this release and its secret scan / 生成本次发布的脚本及敏感信息扫描 |
 | `docs/USAGE-AND-RECOVERY.md` | the bilingual technical document from the package / 包内的双语技术文档 |
-| `docs/history/` | the READMEs of `unified-20261015q` and `vk-fgrelay-20261005` / 前两次发布的 README |
+| `docs/history/` | the READMEs of `unified-20261015q` and `vk-fgrelay-20261005` / `unified-20261015q` 和 `vk-fgrelay-20261005` 两次发布的 README |
 
-The merge kits, patches, evidence and tools of earlier releases were removed from the current tree because they were made for pull requests to the upstream projects. They remain available in the git history and under the tags `unified-20261015q`, `vk-fgrelay-20261005`, `vk-fgrelay-20261002` and `vk-fgrelay-20260929`. `.gitattributes` disables line-ending conversion for the project's own files; the bundled ImGui folder keeps its own `.gitattributes`. `unified-20261103l-source.zip` is the byte-exact copy of the build tree.
+The merge kits, patches, evidence and tools of earlier releases were removed from the current tree because they were made for pull requests to the upstream projects. They remain available in the git history and under the tags `unified-20261015q`, `vk-fgrelay-20261005`, `vk-fgrelay-20261002` and `vk-fgrelay-20260929`. `.gitattributes` disables line-ending conversion for the project's own files; the bundled ImGui folder keeps its own `.gitattributes`. `unified-20261107m-source.zip` is the byte-exact copy of the build tree.
 
-此前各版本的合并补丁包、补丁、证据和工具是为向上游项目提交 PR 而准备的，已从当前文件树中移除；它们仍保存在 git 历史和 `unified-20261015q`、`vk-fgrelay-20261005`、`vk-fgrelay-20261002`、`vk-fgrelay-20260929` 这几个标签中。`.gitattributes` 对本项目自己的文件关闭了换行转换；随附的 ImGui 文件夹保留其自带的 `.gitattributes`。`unified-20261103l-source.zip` 是构建树的逐字节副本。
+此前各版本的合并补丁包、补丁、证据和工具是为向上游项目提交 PR 而准备的，已从当前文件树中移除；它们仍保存在 git 历史和 `unified-20261015q`、`vk-fgrelay-20261005`、`vk-fgrelay-20261002`、`vk-fgrelay-20260929` 这几个标签中。`.gitattributes` 对本项目自己的文件关闭了换行转换；随附的 ImGui 文件夹保留其自带的 `.gitattributes`。`unified-20261107m-source.zip` 是构建树的逐字节副本。
 
 ## 6. Licenses and acknowledgements / 许可与致谢
 

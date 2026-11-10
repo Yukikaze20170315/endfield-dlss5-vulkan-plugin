@@ -17090,6 +17090,27 @@ inline void PollHotkeys() {
   } else if (!toggle_hotkey_was_down.exchange(true, std::memory_order_relaxed)) {
     ToggleNrFromHotkey(toggle_key, false);
   }
+  // A press of the toggle key while another window has the foreground is
+  // ignored by design (the read is system-wide).  It is counted and named
+  // (bounded; "[action]" also puts it into the suite's action journal), so a
+  // report of "the key did nothing" can be told from a toggle that ran.
+  {
+    static std::atomic_bool ignored_was_down{false};
+    static std::atomic_uint64_t ignored_presses{0};
+    const bool held_elsewhere = !focused && !overlay_open && screenshot::KeyHeldAnywhere(toggle_key);
+    if (!held_elsewhere) {
+      ignored_was_down.store(false, std::memory_order_relaxed);
+    } else if (!ignored_was_down.exchange(true, std::memory_order_relaxed)) {
+      const uint64_t count = ignored_presses.fetch_add(1, std::memory_order_relaxed) + 1;
+      if (count <= 16 || count % 64 == 0) {
+        Log(reshade::log::level::info,
+            "[action] phase=hotkey_ignored key=" + VirtualKeyName(toggle_key)
+                + " reason=not_foreground foreground_pid=" + std::to_string(foreground_process)
+                + " count=" + std::to_string(count)
+                + (count == 16 ? " (later ones are logged every 64th)" : ""));
+      }
+    }
+  }
 
   screenshot::PollHotkey(screenshot_hotkey.load(std::memory_order_relaxed),
                          focused, overlay_open);
@@ -17206,6 +17227,8 @@ inline constexpr bool NrTerminalIsIneligible(std::size_t reason_index) {
     case NrDeclineReason::kPresentRepeat:
     case NrDeclineReason::kPresentPreFg:
     case NrDeclineReason::kScreenshotWait:
+    // The Vulkan pre-present path hands the frame to DLSS-G's evaluate.
+    case NrDeclineReason::kPreFgLeftToEvaluate:
       return true;
     default:
       return false;
@@ -17267,6 +17290,7 @@ inline constexpr const char* kSkipReasonText[] = {
     " through)",
     "NR waits to allocate until its held releases complete (the game paused"
     " its frames; the image passes through)",
+    nullptr,  // prefg_left_to_evaluate
 };
 // i18n: end
 // A new eligible decline without a player phrase fails the build: the panel

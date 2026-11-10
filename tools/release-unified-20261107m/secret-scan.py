@@ -1,15 +1,15 @@
 """Secret and personal-data scan over the staged repository and the source zip.
 
-    python tools/release-unified-20261103l/secret-scan.py
+    python tools/release-unified-20261107m/secret-scan.py
 
-Writes dist/release-unified-20261103l/secret-scan-results.txt. Binary files are
+Writes dist/release-unified-20261107m/secret-scan-results.txt. Binary files are
 skipped. Every hit has to be reviewed by hand; a hit is not automatically a leak.
 """
 import re, zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / 'dist' / 'release-unified-20261103l'
+OUT = ROOT / 'dist' / 'release-unified-20261107m'
 REPO = OUT / 'repo'
 ASSETS = OUT / 'assets'
 
