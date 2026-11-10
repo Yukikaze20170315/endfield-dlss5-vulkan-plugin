@@ -4,9 +4,9 @@ Release date: 2026-11-10 (the package was built on 2026-11-07). This release rep
 
 发布日期：2026-11-10（成品包构建于 2026-11-07）。本次发布取代 2026-11-05 的 `unified-20261103l`。与它相比，只更换了 Generic NR 插件（`renodx-dlss5.addon64`）和包内的使用说明，见下文“相比 unified-20261103l 的新内容”。仓库已于 2026-11-05 由 `dlss5-vulkan-fg-relay` 改名为 `endfield-dlss5-vulkan-plugin`，旧链接会被 GitHub 自动跳转。更早一版 `unified-20261015q` 的 README 保留在 [docs/history/README-unified-20261015q.md](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/docs/history/README-unified-20261015q.md)。
 
-A Chinese install guide written by the author is also available: [中文使用教程.txt](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B.txt).
+A Chinese install guide written by the author is also available: [中文使用教程.txt](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B.txt). The author's video tutorial for this release (in Chinese) is on Bilibili: https://www.bilibili.com/video/BV1LH4W68E2Q/
 
-中文用户可直接阅读作者手写的中文使用教程：[中文使用教程.txt](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B.txt)。
+中文用户可直接阅读作者手写的中文使用教程：[中文使用教程.txt](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B.txt)。作者为本版制作的视频教程（中文）在 B 站：https://www.bilibili.com/video/BV1LH4W68E2Q/
 
 ## In short / 简要说明
 
@@ -66,7 +66,7 @@ This guide assumes that you have never installed ReShade or any add-on for this 
 
 本教程假设你从未给这个游戏安装过 ReShade 或任何插件。如果你正在用 `unified-20261103l` 或 `unified-20261015q`，请先看“从旧版本升级”一节。
 
-作者手写的中文版教程（内容更详细，含更多注意事项）：[中文使用教程.txt](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B.txt)。
+作者手写的中文版教程（内容更详细，含更多注意事项）：[中文使用教程.txt](https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin/blob/main/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B.txt)。视频教程（中文）：https://www.bilibili.com/video/BV1LH4W68E2Q/
 
 ## Personal statement from the author / 作者的个人声明
 

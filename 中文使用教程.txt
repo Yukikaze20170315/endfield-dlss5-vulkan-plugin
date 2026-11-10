@@ -1,4 +1,9 @@
 "unified-20261103l-candidate"文件夹内的"DLSS5-使用与恢复 Usage and Recovery.md"不用看，那版是AI写的，主要给外国人看，排版很乱，也不容易懂。直接看我手写的下面这版傻瓜级教程就行。
+作者：盗版の雪風酱
+B站主页：https://space.bilibili.com/11356904
+本插件源码：https://github.com/Yukikaze20170315/endfield-dlss5-vulkan-plugin
+插件内测/反馈群：1127708639
+个人闲聊群：741139504
 
 目前确定支持的显卡：
 NVIDIA：20系、30系、40系、50系

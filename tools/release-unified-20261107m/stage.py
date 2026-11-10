@@ -7,8 +7,8 @@ BUILDING.md, .gitattributes) lives in that folder and is copied, not generated.
 
 Inputs (read only): src/unified-20261011, tools/unified-20261011,
 upstream/NVIDIA-nvapi-87dca62, the unified2l source manifest, the unified2m usage
-document, dist/unified-20261107m-candidate.zip, and the Chinese guide and earlier
-READMEs already published at commit 5ee4367 of the local clone
+document, dist/unified-20261107m-candidate.zip, the author's Chinese guide, and
+the earlier READMEs already published at commit 5ee4367 of the local clone
 worktrees/dlss5-vulkan-fg-relay.
 
 unified2m has no source manifest of its own: its Generic was built from the
@@ -42,13 +42,16 @@ USAGE = ROOT / 'docs' / '统一候选使用与恢复-20261107-2m.md'
 USAGE_SHA256 = 'c950691907e3b1ecd4dfa7bd9b4df1056949307acd85059fc52de9ddd26808b6'
 PUBLISHED_GIT = ROOT / 'worktrees' / 'dlss5-vulkan-fg-relay'
 PUBLISHED_COMMIT = '5ee4367'
-# Taken byte for byte from the published commit: the author's own Chinese guide
-# (not translated) and the READMEs of the two releases before unified-20261103l.
+# Taken byte for byte from the published commit: the READMEs of the two releases
+# before unified-20261103l.
 PUBLISHED_FILES = (
-    '中文使用教程.txt',
     'docs/history/README-unified-20261015q.md',
     'docs/history/README-vk-fgrelay-20261005.md',
 )
+# The author's own Chinese guide, published byte for byte (not translated).
+ZH_GUIDE = Path(r'C:\Users\Administrator\Desktop\暂存文件\DLSS5相关\内测版\第二版\使用教程.txt')
+ZH_GUIDE_SHA256 = '0fca44aa8e4cc0d6acc8972696c6182ecfbe6efb7382d3a8cde65fc46fa3e48d'
+ZH_GUIDE_NAME = '中文使用教程.txt'
 
 SOURCE_TREES = (
     (ROOT / 'src' / 'unified-20261011', 'src/unified-20261011'),
@@ -110,6 +113,8 @@ def verify():
     with zipfile.ZipFile(CANDIDATE_ZIP) as z:
         if hashlib.sha256(z.read('DLSS5-使用与恢复 Usage and Recovery.md')).hexdigest() != USAGE_SHA256:
             raise SystemExit('usage document in the candidate zip differs')
+    if sha256(ZH_GUIDE) != ZH_GUIDE_SHA256:
+        raise SystemExit('the Chinese guide changed; review it and update ZH_GUIDE_SHA256')
     print(f'verify: {len(expected)} manifest files match ({len(CHANGED_SINCE_2L)} changed since unified2l), '
           'candidate zip and usage document match')
 
@@ -133,6 +138,7 @@ def stage_repo():
         t = REPO / rel
         t.parent.mkdir(parents=True, exist_ok=True)
         t.write_bytes(git_show(rel)); count += 1
+    shutil.copy2(ZH_GUIDE, REPO / ZH_GUIDE_NAME); count += 1
     shutil.copy2(USAGE, REPO / 'docs' / 'USAGE-AND-RECOVERY.md'); count += 1
     tools_out = REPO / 'tools' / f'release-{TAG}'
     tools_out.mkdir(parents=True)
